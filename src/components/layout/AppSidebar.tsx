@@ -33,36 +33,19 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`transition-all duration-300 ${
-        state === "collapsed" ? "w-16" : "w-64"
-      }`}
+      className="w-16 transition-all duration-300"
       collapsible="icon"
     >
       <SidebarContent className="bg-sidebar border-r border-sidebar-border">
-        <div className="p-6">
-          <div className="flex items-center gap-3">
+        <div className="p-4">
+          <div className="flex items-center justify-center">
             <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
-            {state !== "collapsed" && (
-              <div>
-                <h1 className="text-lg font-bold text-sidebar-foreground">
-                  Sales Pro
-                </h1>
-                <p className="text-sm text-sidebar-foreground/70">
-                  Dashboard
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
         <SidebarGroup>
-          {state !== "collapsed" && (
-            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium">
-              Menu Principal
-            </SidebarGroupLabel>
-          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -71,17 +54,15 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                        `flex items-center justify-center w-10 h-10 rounded-lg transition-all ${
                           isActive
                             ? "bg-sidebar-accent text-sidebar-primary border border-sidebar-primary/20"
                             : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                         }`
                       }
+                      title={item.title}
                     >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
-                      {state !== "collapsed" && (
-                        <span className="font-medium">{item.title}</span>
-                      )}
+                      <item.icon className="w-5 h-5" />
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

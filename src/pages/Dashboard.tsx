@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [selectedFilter, setSelectedFilter] = useState("30dias")
 
   // Dados simulados - na implementação real, viriam de uma API
+  const userName = "Carlos Silva" // TODO: Buscar do contexto de autenticação
   const metrics = {
     totalVendas: "R$ 45.234",
     quantidadeVendas: 23,
@@ -34,7 +35,7 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Bem-vindo de volta! 👋
+                Bem-vindo de volta, {userName}! 👋
               </h1>
               <p className="text-muted-foreground mt-1">
                 Aqui está um resumo da sua performance de vendas
