@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { BarChart3, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
@@ -39,7 +40,7 @@ export default function Auth() {
     } else {
       toast({
         title: 'Login realizado com sucesso!',
-        description: 'Bem-vindo ao Sales Pro'
+        description: 'Bem-vindo ao WS LTDA'
       })
     }
 
@@ -91,7 +92,7 @@ export default function Auth() {
               <BarChart3 className="w-7 h-7 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Sales Pro</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">WS LTDA</h1>
           <p className="text-muted-foreground">
             Sistema de gerenciamento comercial
           </p>
@@ -185,6 +186,17 @@ export default function Auth() {
                       required
                       className="w-full"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-cargo">Cargo</Label>
+                    <Select name="cargo" defaultValue="seller" required>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="seller">Seller</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Senha</Label>
