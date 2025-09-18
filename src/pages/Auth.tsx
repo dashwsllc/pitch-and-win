@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast'
 export default function Auth() {
   const { user, signIn, signUp, loading } = useAuth()
   const { toast } = useToast()
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
@@ -164,7 +165,7 @@ export default function Auth() {
                     <Button 
                       type="button"
                       variant="link" 
-                      onClick={() => window.location.href = '/reset-password'}
+                      onClick={() => navigate('/reset-password')}
                       className="text-sm text-muted-foreground hover:text-foreground"
                     >
                       Esqueci a senha
