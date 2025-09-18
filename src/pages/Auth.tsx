@@ -159,6 +159,17 @@ export default function Auth() {
                   >
                     {isLoading ? 'Entrando...' : 'Entrar'}
                   </Button>
+                  
+                  <div className="text-center">
+                    <Button 
+                      type="button"
+                      variant="link" 
+                      onClick={() => window.location.href = '/reset-password'}
+                      className="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      Esqueci a senha
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
 
