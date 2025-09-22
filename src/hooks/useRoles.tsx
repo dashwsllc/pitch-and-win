@@ -83,7 +83,7 @@ export function useAllUsers() {
         .from('profiles')
         .select(`
           *,
-          user_roles!inner(role)
+          user_roles(role)
         `)
         .order('created_at', { ascending: false })
 

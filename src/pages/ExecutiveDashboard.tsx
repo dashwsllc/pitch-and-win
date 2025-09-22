@@ -23,6 +23,7 @@ import { FilterTabs } from '@/components/dashboard/FilterTabs'
 import { ExecutiveUserManagement } from '@/components/executive/ExecutiveUserManagement'
 import { ExecutiveSessionControl } from '@/components/executive/ExecutiveSessionControl'
 import { ExecutiveSellerDetails } from '@/components/executive/ExecutiveSellerDetails'
+import { ExecutiveWithdrawalManagement } from '@/components/executive/ExecutiveWithdrawalManagement'
 
 export default function ExecutiveDashboard() {
   const [selectedFilter, setSelectedFilter] = useState('30dias')
@@ -158,10 +159,11 @@ export default function ExecutiveDashboard() {
 
         {/* Management Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="users">Gerenciar Usuários</TabsTrigger>
             <TabsTrigger value="sessions">Controle de Sessões</TabsTrigger>
             <TabsTrigger value="details">Detalhes por Vendedor</TabsTrigger>
+            <TabsTrigger value="withdrawals">Gerenciar Saques</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -174,6 +176,10 @@ export default function ExecutiveDashboard() {
 
           <TabsContent value="details">
             <ExecutiveSellerDetails />
+          </TabsContent>
+
+          <TabsContent value="withdrawals">
+            <ExecutiveWithdrawalManagement />
           </TabsContent>
         </Tabs>
 

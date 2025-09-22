@@ -26,7 +26,8 @@ import {
   Shield, 
   UserCheck, 
   Crown,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react'
 import { useAllUsers, useRoles } from '@/hooks/useRoles'
 import { supabase } from '@/integrations/supabase/client'
@@ -162,6 +163,48 @@ export function ExecutiveUserManagement() {
     }
   }
 
+  const deleteUser = async (userId: string, userEmail: string) => {
+    if (!isSuperAdmin) {
+      toast({
+        title: 'Acesso negado',
+        description: 'Apenas o super administrador pode excluir usuários.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setUpdatingUser(userId)
+    
+    try {
+      // Primeiro remover todos os dados relacionados ao usuário
+      await Promise.all([
+        supabase.from('user_roles').delete().eq('user_id', userId),
+        supabase.from('vendas').delete().eq('user_id', userId),
+        supabase.from('abordagens').delete().eq('user_id', userId),
+        supabase.from('assinaturas').delete().eq('user_id', userId),
+        supabase.from('saques').delete().eq('user_id', userId),
+        supabase.from('saldos_disponiveis').delete().eq('user_id', userId),
+        supabase.from('profiles').delete().eq('user_id', userId)
+      ])
+
+      toast({
+        title: 'Usuário excluído!',
+        description: `${userEmail} foi removido da plataforma.`
+      })
+
+      refetch()
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      toast({
+        title: 'Erro ao excluir usuário',
+        description: 'Não foi possível excluir o usuário. Tente novamente.',
+        variant: 'destructive'
+      })
+    } finally {
+      setUpdatingUser(null)
+    }
+  }
+
   if (loading) {
     return (
       <Card>
@@ -285,6 +328,45 @@ export function ExecutiveUserManagement() {
                             className="bg-gradient-primary hover:opacity-90"
                           >
                             Promover a Executive
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+
+                  {isSuperAdmin && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant="destructive"
+                          size="sm"
+                          disabled={updatingUser === user.id}
+                        >
+                          {updatingUser === user.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Excluir Conta
+                            </>
+                          )}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir conta do usuário?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta ação é IRREVERSÍVEL. Todos os dados do usuário {user.display_name || user.user_id}, 
+                            incluindo vendas, abordagens e assinaturas serão permanentemente excluídos.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteUser(user.id, user.display_name || user.user_id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir Permanentemente
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
