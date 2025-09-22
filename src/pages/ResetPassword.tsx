@@ -29,9 +29,11 @@ export default function ResetPassword() {
     const email = formData.get('email') as string
 
     try {
-      // Use Supabase's built-in password reset
+      // Use Supabase's built-in password reset with custom redirect
+      const redirectUrl = `${window.location.origin}/reset-password`
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: redirectUrl,
       })
 
       if (error) {
@@ -40,21 +42,14 @@ export default function ResetPassword() {
           description: error.message,
           variant: 'destructive'
         })
-        setIsLoading(false)
-        return
+      } else {
+        toast({
+          title: 'Email enviado!',
+          description: 'Verifique sua caixa de entrada e spam para o link de redefinição.',
+        })
+        setRequestSent(true)
       }
 
-      // Also create password reset request in database for admin tracking
-      await supabase
-        .from('password_reset_requests')
-        .insert([
-          {
-            user_id: '00000000-0000-0000-0000-000000000000', // Will be updated by admin
-            email: email
-          }
-        ])
-
-      setRequestSent(true)
     } catch (error) {
       console.error('Error in handleForgotPassword:', error)
       toast({
@@ -85,23 +80,47 @@ export default function ResetPassword() {
       return
     }
 
-    const { error } = await supabase.auth.updateUser({ password })
-
-    if (error) {
+    if (password.length < 6) {
       toast({
-        title: 'Erro ao redefinir senha',
-        description: error.message,
+        title: 'Senha muito curta',
+        description: 'A senha deve ter pelo menos 6 caracteres',
         variant: 'destructive'
       })
-    } else {
-      toast({
-        title: 'Senha redefinida com sucesso!',
-        description: 'Você será redirecionado para o login'
-      })
-      setTimeout(() => navigate('/auth'), 2000)
+      setIsLoading(false)
+      return
     }
 
-    setIsLoading(false)
+    try {
+      const { error } = await supabase.auth.updateUser({ password })
+
+      if (error) {
+        throw error
+      }
+
+      toast({
+        title: 'Senha redefinida com sucesso!',
+        description: 'Você será redirecionado para o dashboard'
+      })
+      
+      // Redirect to dashboard after successful password reset
+      setTimeout(() => {
+        if (user) {
+          navigate('/dashboard')
+        } else {
+          navigate('/auth')
+        }
+      }, 2000)
+      
+    } catch (error: any) {
+      console.error('Error resetting password:', error)
+      toast({
+        title: 'Erro ao redefinir senha',
+        description: error.message || 'Tente novamente',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

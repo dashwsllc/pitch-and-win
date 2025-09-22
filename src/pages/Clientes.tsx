@@ -326,7 +326,7 @@ export default function Clientes() {
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
               <ShoppingBag className="w-5 h-5" />
-              Clientes que Compraram ({vendasClientes.length})
+              Todos os Clientes ({vendasClientes.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
