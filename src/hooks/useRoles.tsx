@@ -79,20 +79,41 @@ export function useAllUsers() {
 
   const fetchAllUsers = async () => {
     try {
-      const { data: profiles, error } = await supabase
+      // Buscar todos os perfis
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles(role)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching all users:', error)
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError)
         return
       }
 
-      setUsers(profiles || [])
+      // Buscar todos os roles existentes
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError)
+        return
+      }
+
+      const rolesByUser = new Map<string, string[]>()
+      ;(roles || []).forEach(r => {
+        const list = rolesByUser.get(r.user_id) || []
+        list.push(r.role)
+        rolesByUser.set(r.user_id, list)
+      })
+
+      const merged = (profiles || []).map((p) => ({
+        ...p,
+        roles: rolesByUser.get(p.user_id) || [],
+        role: (rolesByUser.get(p.user_id) || ['seller'])[0]
+      }))
+
+      setUsers(merged)
     } catch (error) {
       console.error('Error in fetchAllUsers:', error)
     } finally {

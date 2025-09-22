@@ -34,10 +34,10 @@ interface WithdrawalRequest {
   status: string
   data_solicitacao: string
   observacoes: string | null
-  profiles: {
+  profile?: {
     display_name: string | null
     user_id: string
-  } | null
+  }
 }
 
 export function ExecutiveWithdrawalManagement() {
@@ -50,17 +50,31 @@ export function ExecutiveWithdrawalManagement() {
 
   const fetchWithdrawals = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: saques, error: saquesError } = await supabase
         .from('saques')
-        .select(`
-          *,
-          profiles(display_name, user_id)
-        `)
+        .select('*')
         .order('data_solicitacao', { ascending: false })
 
-      if (error) throw error
+      if (saquesError) throw saquesError
 
-      setWithdrawals((data as unknown as WithdrawalRequest[]) || [])
+      const userIds = Array.from(new Set((saques || []).map((s) => s.user_id)))
+      let profilesMap = new Map<string, { display_name: string | null; user_id: string }>()
+
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', userIds)
+        if (profilesError) throw profilesError
+        profiles?.forEach((p) => profilesMap.set(p.user_id, { user_id: p.user_id, display_name: p.display_name }))
+      }
+
+      const merged = (saques || []).map((s) => ({
+        ...s,
+        profile: profilesMap.get(s.user_id)
+      })) as WithdrawalRequest[]
+
+      setWithdrawals(merged)
     } catch (error) {
       console.error('Error fetching withdrawals:', error)
       toast({
@@ -247,13 +261,13 @@ export function ExecutiveWithdrawalManagement() {
                     <div className="flex items-center gap-4">
                         <Avatar>
                           <AvatarFallback className="bg-gradient-primary text-white">
-                            {getInitials(withdrawal.profiles?.display_name || withdrawal.profiles?.user_id || 'U')}
+                          {getInitials(withdrawal.profile?.display_name || withdrawal.profile?.user_id || 'U')}
                           </AvatarFallback>
                         </Avatar>
                       
                       <div>
                         <p className="font-medium text-foreground">
-                          {withdrawal.profiles?.display_name || 'Usuário'}
+                          {withdrawal.profile?.display_name || 'Usuário'}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Chave PIX: {withdrawal.chave_pix}
@@ -296,7 +310,7 @@ export function ExecutiveWithdrawalManagement() {
                           <AlertDialogTitle>Aprovar saque?</AlertDialogTitle>
                           <AlertDialogDescription>
                             Você está prestes a aprovar o saque de {formatCurrency(withdrawal.valor_solicitado)} 
-                            para {withdrawal.profiles?.display_name || 'o usuário'}. O valor será debitado do saldo disponível.
+                            para {withdrawal.profile?.display_name || 'o usuário'}. O valor será debitado do saldo disponível.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="py-4">
@@ -396,13 +410,13 @@ export function ExecutiveWithdrawalManagement() {
                     <div className="flex items-center gap-4">
                       <Avatar>
                         <AvatarFallback className="bg-gradient-primary text-white">
-                          {getInitials(withdrawal.profiles?.display_name || withdrawal.profiles?.user_id || 'U')}
+                          {getInitials(withdrawal.profile?.display_name || withdrawal.profile?.user_id || 'U')}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div>
                         <p className="font-medium text-foreground">
-                          {withdrawal.profiles?.display_name || 'Usuário'}
+                          {withdrawal.profile?.display_name || 'Usuário'}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Processado em: {new Date(withdrawal.data_solicitacao).toLocaleString('pt-BR')}

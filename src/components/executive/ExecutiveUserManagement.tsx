@@ -236,7 +236,7 @@ export function ExecutiveUserManagement() {
       <CardContent>
         <div className="space-y-4">
           {users.map((user) => {
-            const role = user.user_roles?.[0]?.role || 'seller'
+            const role = user.role || 'seller'
             const isExecutive = role === 'executive'
             
             return (
