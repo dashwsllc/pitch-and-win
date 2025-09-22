@@ -79,7 +79,7 @@ export function ExecutiveUserManagement() {
         .select('*')
         .eq('user_id', userId)
         .eq('role', 'executive')
-        .single()
+        .maybeSingle()
 
       if (existingRole) {
         toast({
@@ -236,8 +236,9 @@ export function ExecutiveUserManagement() {
       <CardContent>
         <div className="space-y-4">
           {users.map((user) => {
-            const role = user.role || 'seller'
-            const isExecutive = role === 'executive'
+            const userRoles = user.roles || []
+            const isExecutive = userRoles.includes('executive')
+            const role = isExecutive ? 'executive' : 'seller'
             
             return (
               <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">

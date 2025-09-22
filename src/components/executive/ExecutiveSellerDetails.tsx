@@ -38,6 +38,7 @@ interface SellerStats {
 export function ExecutiveSellerDetails() {
   const { users, loading: usersLoading } = useAllUsers()
   const [selectedSeller, setSelectedSeller] = useState<string>('')
+  const [dateFilter, setDateFilter] = useState<string>('30dias')
   const [stats, setStats] = useState<SellerStats>({
     totalSales: 0,
     totalRevenue: 0,
@@ -51,24 +52,56 @@ export function ExecutiveSellerDetails() {
   })
   const [loading, setLoading] = useState(false)
 
+  const getDateRange = (filter: string) => {
+    const now = new Date()
+    const start = new Date()
+    
+    switch (filter) {
+      case 'hoje':
+        start.setHours(0, 0, 0, 0)
+        break
+      case 'ontem':
+        start.setDate(now.getDate() - 1)
+        start.setHours(0, 0, 0, 0)
+        now.setDate(now.getDate() - 1)
+        now.setHours(23, 59, 59, 999)
+        break
+      case '7dias':
+        start.setDate(now.getDate() - 7)
+        break
+      case '30dias':
+      default:
+        start.setDate(now.getDate() - 30)
+        break
+    }
+    
+    return { start: start.toISOString(), end: now.toISOString() }
+  }
+
   const fetchSellerStats = async (sellerId: string) => {
     if (!sellerId) return
 
     setLoading(true)
     
     try {
-      // Buscar vendas do seller
+      const { start, end } = getDateRange(dateFilter)
+
+      // Buscar vendas do seller no período
       const { data: sales } = await supabase
         .from('vendas')
         .select('*')
         .eq('user_id', sellerId)
+        .gte('created_at', start)
+        .lte('created_at', end)
         .order('created_at', { ascending: false })
 
-      // Buscar abordagens do seller
+      // Buscar abordagens do seller no período
       const { data: approaches } = await supabase
         .from('abordagens')
         .select('*')
         .eq('user_id', sellerId)
+        .gte('created_at', start)
+        .lte('created_at', end)
         .order('created_at', { ascending: false })
 
       // Buscar assinaturas do seller
@@ -130,7 +163,7 @@ export function ExecutiveSellerDetails() {
     if (selectedSeller) {
       fetchSellerStats(selectedSeller)
     }
-  }, [selectedSeller])
+  }, [selectedSeller, dateFilter])
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -156,31 +189,50 @@ export function ExecutiveSellerDetails() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <Select value={selectedSeller} onValueChange={setSelectedSeller}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um vendedor para ver os detalhes" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.user_id}>
-                      {user.display_name || user.user_id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <Select value={selectedSeller} onValueChange={setSelectedSeller}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um vendedor para ver os detalhes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.map((user) => (
+                      <SelectItem key={user.id} value={user.user_id}>
+                        {user.display_name || `Usuário ${user.user_id.substring(0, 8)}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedSeller && (
+                <Button 
+                  onClick={() => fetchSellerStats(selectedSeller)}
+                  variant="outline" 
+                  size="sm"
+                  disabled={loading}
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  Atualizar
+                </Button>
+              )}
             </div>
+            
             {selectedSeller && (
-              <Button 
-                onClick={() => fetchSellerStats(selectedSeller)}
-                variant="outline" 
-                size="sm"
-                disabled={loading}
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Atualizar
-              </Button>
+              <div className="flex items-center gap-4">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <Select value={dateFilter} onValueChange={setDateFilter}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hoje">Hoje</SelectItem>
+                    <SelectItem value="ontem">Ontem</SelectItem>
+                    <SelectItem value="7dias">Últimos 7 dias</SelectItem>
+                    <SelectItem value="30dias">Últimos 30 dias</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
         </CardContent>

@@ -84,6 +84,11 @@ export function useExecutiveDashboard(dateFilter: string = '30dias') {
     try {
       const { start, end } = getDateRange(dateFilter)
 
+      // Buscar perfis de usuários para mapear nomes
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+
       // Buscar total de sellers
       const { data: sellersData } = await supabase
         .from('profiles')
@@ -138,35 +143,41 @@ export function useExecutiveDashboard(dateFilter: string = '30dias') {
         })
       }
 
+      // Criar mapa de nomes de usuários
+      const userNamesMap = new Map()
+      profilesData?.forEach(profile => {
+        userNamesMap.set(profile.user_id, profile.display_name || `Usuário ${profile.user_id.substring(0, 8)}`)
+      })
+
       // Top sellers
       const sellerStats = new Map()
       
       salesData?.forEach(sale => {
-        const sellerName = `Seller ${sale.user_id.substring(0, 8)}`
-        if (!sellerStats.has(sellerName)) {
-          sellerStats.set(sellerName, {
+        const sellerName = userNamesMap.get(sale.user_id) || `Usuário ${sale.user_id.substring(0, 8)}`
+        if (!sellerStats.has(sale.user_id)) {
+          sellerStats.set(sale.user_id, {
             seller_name: sellerName,
             total_sales: 0,
             total_revenue: 0,
             approaches: 0
           })
         }
-        const stats = sellerStats.get(sellerName)
+        const stats = sellerStats.get(sale.user_id)
         stats.total_sales += 1
         stats.total_revenue += Number(sale.valor_venda)
       })
 
       approachesData?.forEach(approach => {
-        const sellerName = `Seller ${approach.user_id.substring(0, 8)}`
-        if (!sellerStats.has(sellerName)) {
-          sellerStats.set(sellerName, {
+        const sellerName = userNamesMap.get(approach.user_id) || `Usuário ${approach.user_id.substring(0, 8)}`
+        if (!sellerStats.has(approach.user_id)) {
+          sellerStats.set(approach.user_id, {
             seller_name: sellerName,
             total_sales: 0,
             total_revenue: 0,
             approaches: 0
           })
         }
-        const stats = sellerStats.get(sellerName)
+        const stats = sellerStats.get(approach.user_id)
         stats.approaches += 1
       })
 
@@ -182,13 +193,13 @@ export function useExecutiveDashboard(dateFilter: string = '30dias') {
       const recentActivity = [
         ...salesData?.slice(0, 5).map(sale => ({
           type: 'sale' as const,
-          seller_name: `Seller ${sale.user_id.substring(0, 8)}`,
+          seller_name: userNamesMap.get(sale.user_id) || `Usuário ${sale.user_id.substring(0, 8)}`,
           details: `Venda de ${sale.nome_produto} - R$ ${Number(sale.valor_venda).toLocaleString('pt-BR')}`,
           created_at: sale.created_at
         })) || [],
         ...approachesData?.slice(0, 5).map(approach => ({
           type: 'approach' as const,
-          seller_name: `Seller ${approach.user_id.substring(0, 8)}`,
+          seller_name: userNamesMap.get(approach.user_id) || `Usuário ${approach.user_id.substring(0, 8)}`,
           details: `${approach.nomes_abordados} pessoas abordadas`,
           created_at: approach.created_at
         })) || []
