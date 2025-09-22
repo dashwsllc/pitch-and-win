@@ -66,7 +66,7 @@ export function WithdrawDialog({ availableAmount, onWithdrawRequest }: WithdrawD
 
       toast({
         title: "Saque solicitado com sucesso!",
-        description: "Seu pedido de saque foi enviado para análise.",
+        description: "Solicitação de saque enviada!",
       })
 
       setAmount("")

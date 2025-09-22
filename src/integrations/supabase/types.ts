@@ -294,6 +294,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      process_withdrawal: {
+        Args: { p_user_id: string; p_withdrawal_amount: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "seller" | "executive"
