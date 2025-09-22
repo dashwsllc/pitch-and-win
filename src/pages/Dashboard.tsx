@@ -17,7 +17,8 @@ import {
   Target,
   Clock,
   RefreshCw,
-  Banknote
+  Banknote,
+  Wallet
 } from "lucide-react"
 
 export default function Dashboard() {
@@ -43,14 +44,23 @@ export default function Dashboard() {
               </p>
             </div>
             
-            <Button 
-              onClick={() => refetch()} 
-              variant="ghost"
-              size="icon"
-              className="w-fit h-fit p-2 text-muted-foreground hover:text-foreground"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                className="bg-gradient-withdraw hover:opacity-90 text-black font-medium px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                Sacar
+              </Button>
+              
+              <Button 
+                onClick={() => refetch()} 
+                variant="ghost"
+                size="icon"
+                className="w-fit h-fit p-2 text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
           
           <FilterTabs 

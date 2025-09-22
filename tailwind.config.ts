@@ -79,12 +79,14 @@ export default {
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
-        "gradient-success": "var(--gradient-success)",  
+        "gradient-success": "var(--gradient-success)",
+        "gradient-withdraw": "var(--gradient-withdraw)",
         "gradient-card": "var(--gradient-card)",
       },
       background: {
         "gradient-primary": "var(--gradient-primary)",
         "gradient-success": "var(--gradient-success)",
+        "gradient-withdraw": "var(--gradient-withdraw)",
         "gradient-card": "var(--gradient-card)",
       },
       boxShadow: {

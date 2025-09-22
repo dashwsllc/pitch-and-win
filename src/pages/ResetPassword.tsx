@@ -29,24 +29,39 @@ export default function ResetPassword() {
     const email = formData.get('email') as string
 
     try {
-      // Create password reset request in database
-      const { error } = await supabase
+      // Use Supabase's built-in password reset
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+
+      if (error) {
+        toast({
+          title: 'Erro ao enviar link',
+          description: error.message,
+          variant: 'destructive'
+        })
+        setIsLoading(false)
+        return
+      }
+
+      // Also create password reset request in database for admin tracking
+      await supabase
         .from('password_reset_requests')
         .insert([
           {
-            user_id: user?.id || '00000000-0000-0000-0000-000000000000',
+            user_id: '00000000-0000-0000-0000-000000000000', // Will be updated by admin
             email: email
           }
         ])
 
-      if (error) {
-        console.error('Error creating password reset request:', error)
-      }
-
       setRequestSent(true)
     } catch (error) {
       console.error('Error in handleForgotPassword:', error)
-      setRequestSent(true) // Still show success to user
+      toast({
+        title: 'Erro inesperado',
+        description: 'Tente novamente em alguns minutos',
+        variant: 'destructive'
+      })
     } finally {
       setIsLoading(false)
     }
@@ -183,8 +198,8 @@ export default function ResetPassword() {
             ) : (
               requestSent ? (
                 <div className="space-y-4 text-center">
-                  <p className="text-foreground">Sua solicitação foi enviada aos administradores.</p>
-                  <p className="text-muted-foreground">Aguarde autorização. Você receberá o acesso em breve.</p>
+                  <p className="text-foreground">Link de recuperação enviado!</p>
+                  <p className="text-muted-foreground">Verifique seu email e clique no link para redefinir sua senha.</p>
                   <Button className="w-full bg-gradient-primary hover:opacity-90" onClick={() => navigate('/auth')}>
                     Voltar ao Login
                   </Button>
