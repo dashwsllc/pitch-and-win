@@ -8,6 +8,7 @@ interface DashboardMetrics {
   ticketMedio: number
   abordagens: number
   conversao: number
+  comissao: number
   vendasMes: Array<{
     month: string
     vendas: number
@@ -28,6 +29,7 @@ export function useDashboardData(dateFilter: string = "30dias") {
     ticketMedio: 0,
     abordagens: 0,
     conversao: 0,
+    comissao: 0,
     vendasMes: [],
     produtosMaisVendidos: []
   })
@@ -89,6 +91,7 @@ export function useDashboardData(dateFilter: string = "30dias") {
       const ticketMedio = quantidadeVendas > 0 ? totalVendas / quantidadeVendas : 0
       const totalAbordagens = abordagens?.length || 0
       const conversao = totalAbordagens > 0 ? (quantidadeVendas / totalAbordagens) * 100 : 0
+      const comissao = totalVendas * 0.1
 
       // Dados por mês (últimos 6 meses)
       const vendasPorMes = new Map()
@@ -156,6 +159,7 @@ export function useDashboardData(dateFilter: string = "30dias") {
         ticketMedio,
         abordagens: totalAbordagens,
         conversao,
+        comissao,
         vendasMes,
         produtosMaisVendidos
       })

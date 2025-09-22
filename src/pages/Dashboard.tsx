@@ -15,7 +15,9 @@ import {
   TrendingUp, 
   Users,
   Target,
-  Clock
+  Clock,
+  RefreshCw,
+  Banknote
 } from "lucide-react"
 
 export default function Dashboard() {
@@ -43,10 +45,11 @@ export default function Dashboard() {
             
             <Button 
               onClick={() => refetch()} 
-              variant="outline"
-              className="w-fit"
+              variant="ghost"
+              size="icon"
+              className="w-fit h-fit p-2 text-muted-foreground hover:text-foreground"
             >
-              Atualizar Dados
+              <RefreshCw className="w-4 h-4" />
             </Button>
           </div>
           
@@ -67,6 +70,17 @@ export default function Dashboard() {
             icon={<DollarSign className="w-8 h-8" />}
             trend={{ value: 12.5, isPositive: true }}
             gradient
+            loading={loading}
+          />
+          
+          <MetricCard
+            title="Comissão"
+            value={new Intl.NumberFormat('pt-BR', { 
+              style: 'currency', 
+              currency: 'BRL' 
+            }).format(metrics.comissao)}
+            icon={<Banknote className="w-8 h-8" />}
+            trend={{ value: 12.5, isPositive: true }}
             loading={loading}
           />
           
@@ -103,15 +117,6 @@ export default function Dashboard() {
             value={`${metrics.conversao.toFixed(1)}%`}
             icon={<Target className="w-8 h-8" />}
             trend={{ value: 15.8, isPositive: true }}
-            loading={loading}
-          />
-          
-          <MetricCard
-            title="Posição Ranking"
-            value="—"
-            subtitle="Ranking ainda não iniciado"
-            icon={<Clock className="w-8 h-8" />}
-            className="animate-pulse-glow"
             loading={loading}
           />
         </div>

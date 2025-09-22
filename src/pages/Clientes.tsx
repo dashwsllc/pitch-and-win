@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { toast } from "sonner"
-import { Users, UserPlus, Check, X, Plus } from "lucide-react"
+import { Users, UserPlus, Check, X, Plus, ShoppingBag } from "lucide-react"
 
 interface Assinatura {
   id: string
@@ -24,9 +24,21 @@ interface Assinatura {
   created_at: string
 }
 
+interface VendaCliente {
+  id: string
+  nome_produto: string
+  nome_comprador: string
+  email_comprador: string
+  whatsapp_comprador: string
+  created_at: string
+  valor_venda: string
+  na_area_membros: boolean
+}
+
 export default function Clientes() {
   const { user } = useAuth()
   const [assinaturas, setAssinaturas] = useState<Assinatura[]>([])
+  const [vendasClientes, setVendasClientes] = useState<VendaCliente[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   
@@ -48,7 +60,7 @@ export default function Clientes() {
     "Mentoria Jogador Milionário"
   ]
 
-  // Carregar assinaturas
+  // Carregar assinaturas e vendas
   const fetchAssinaturas = async () => {
     if (!user) return
 
@@ -69,8 +81,39 @@ export default function Clientes() {
     }
   }
 
+  const fetchVendasClientes = async () => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('vendas')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      
+      const vendasFormatadas = (data || []).map(venda => ({
+        id: venda.id,
+        nome_produto: venda.nome_produto,
+        nome_comprador: venda.nome_comprador,
+        email_comprador: venda.email_comprador,
+        whatsapp_comprador: venda.whatsapp_comprador,
+        created_at: venda.created_at,
+        valor_venda: String(venda.valor_venda),
+        na_area_membros: false // Default to false since column doesn't exist yet
+      }))
+      
+      setVendasClientes(vendasFormatadas)
+    } catch (error) {
+      console.error('Erro ao carregar vendas:', error)
+      toast.error('Erro ao carregar vendas')
+    }
+  }
+
   useEffect(() => {
     fetchAssinaturas()
+    fetchVendasClientes()
   }, [user])
 
   // Cadastrar nova assinatura
@@ -133,6 +176,33 @@ export default function Clientes() {
     } catch (error) {
       console.error('Erro ao alterar status:', error)
       toast.error('Erro ao alterar status da assinatura')
+    }
+  }
+
+  // Alterar status de área de membros da venda - simulado localmente
+  const toggleAreaMembros = async (id: string, novoStatus: boolean) => {
+    try {
+      // Como a coluna ainda não existe no banco, vamos atualizar apenas localmente
+      setVendasClientes(prevVendas => 
+        prevVendas.map(venda => 
+          venda.id === id 
+            ? { ...venda, na_area_membros: novoStatus }
+            : venda
+        )
+      )
+
+      toast.success(`Cliente ${novoStatus ? 'adicionado à' : 'removido da'} área de membros!`)
+      
+      // TODO: Quando a coluna na_area_membros for adicionada ao banco, descomente:
+      // const { error } = await supabase
+      //   .from('vendas')
+      //   .update({ na_area_membros: novoStatus })
+      //   .eq('id', id)
+      // if (error) throw error
+      
+    } catch (error) {
+      console.error('Erro ao alterar status:', error)
+      toast.error('Erro ao alterar status da área de membros')
     }
   }
 
@@ -248,6 +318,76 @@ export default function Clientes() {
                 {saving ? 'Cadastrando...' : 'Cadastrar Cliente'}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Lista de Vendas - Clientes que Compraram */}
+        <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5" />
+              Clientes que Compraram ({vendasClientes.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {vendasClientes.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Nenhuma venda cadastrada ainda</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {vendasClientes.map((venda) => (
+                  <div
+                    key={venda.id}
+                    className="flex items-center justify-between p-4 border border-border/50 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          {venda.na_area_membros ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <X className="w-4 h-4 text-red-500" />
+                          )}
+                          <h3 className="font-semibold text-foreground">
+                            {venda.nome_comprador}
+                          </h3>
+                        </div>
+                        <Badge 
+                          variant={venda.na_area_membros ? 'default' : 'secondary'}
+                        >
+                          {venda.na_area_membros ? 'Na Área de Membros' : 'Fora da Área'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid gap-1 text-sm text-muted-foreground md:grid-cols-3">
+                        <span><strong>Produto:</strong> {venda.nome_produto}</span>
+                        <span><strong>Email:</strong> {venda.email_comprador}</span>
+                        <span><strong>WhatsApp:</strong> {venda.whatsapp_comprador}</span>
+                      </div>
+                      
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        <strong>Data da Venda:</strong> {new Date(venda.created_at).toLocaleDateString('pt-BR')}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 ml-4">
+                      <Label htmlFor={`area-${venda.id}`} className="text-sm">
+                        Área de Membros
+                      </Label>
+                      <Switch
+                        id={`area-${venda.id}`}
+                        checked={venda.na_area_membros}
+                        onCheckedChange={(checked) => 
+                          toggleAreaMembros(venda.id, checked)
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
