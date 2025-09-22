@@ -1,7 +1,8 @@
-import Dashboard from "./Dashboard";
+import { Navigate } from 'react-router-dom'
 
 const Index = () => {
-  return <Dashboard />;
-};
+  // Redirecionar para o dashboard individual
+  return <Navigate to="/dashboard" replace />
+}
 
-export default Index;
+export default Index

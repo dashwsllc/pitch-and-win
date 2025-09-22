@@ -21,7 +21,7 @@ import { MetricCard } from '@/components/dashboard/MetricCard'
 import { SalesChart } from '@/components/dashboard/SalesChart'
 import { FilterTabs } from '@/components/dashboard/FilterTabs'
 import { ExecutiveUserManagement } from '@/components/executive/ExecutiveUserManagement'
-import { ExecutivePasswordRequests } from '@/components/executive/ExecutivePasswordRequests'
+import { ExecutiveSessionControl } from '@/components/executive/ExecutiveSessionControl'
 import { ExecutiveSellerDetails } from '@/components/executive/ExecutiveSellerDetails'
 
 export default function ExecutiveDashboard() {
@@ -160,7 +160,7 @@ export default function ExecutiveDashboard() {
         <Tabs defaultValue="users" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="users">Gerenciar Usuários</TabsTrigger>
-            <TabsTrigger value="passwords">Redefinir Senhas</TabsTrigger>
+            <TabsTrigger value="sessions">Controle de Sessões</TabsTrigger>
             <TabsTrigger value="details">Detalhes por Vendedor</TabsTrigger>
           </TabsList>
 
@@ -168,8 +168,8 @@ export default function ExecutiveDashboard() {
             <ExecutiveUserManagement />
           </TabsContent>
 
-          <TabsContent value="passwords">
-            <ExecutivePasswordRequests />
+          <TabsContent value="sessions">
+            <ExecutiveSessionControl />
           </TabsContent>
 
           <TabsContent value="details">

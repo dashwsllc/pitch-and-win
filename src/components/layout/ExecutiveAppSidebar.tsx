@@ -12,7 +12,7 @@ import {
 import { NavLink } from "react-router-dom"
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: Home },
+  { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Executive", url: "/executive", icon: Shield },
   { title: "Abordagens", url: "/abordagens", icon: MessageSquare },
   { title: "Vendas", url: "/vendas", icon: DollarSign },
@@ -23,7 +23,7 @@ const menuItems = [
 ]
 
 const sellerMenuItems = [
-  { title: "Dashboard", url: "/", icon: Home },
+  { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Abordagens", url: "/abordagens", icon: MessageSquare },
   { title: "Vendas", url: "/vendas", icon: DollarSign },
   { title: "Ranking", url: "/ranking", icon: Trophy },

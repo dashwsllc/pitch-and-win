@@ -28,12 +28,13 @@ import {
   Crown,
   Loader2
 } from 'lucide-react'
-import { useAllUsers } from '@/hooks/useRoles'
+import { useAllUsers, useRoles } from '@/hooks/useRoles'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 
 export function ExecutiveUserManagement() {
   const { users, loading, refetch } = useAllUsers()
+  const { isSuperAdmin } = useRoles()
   const { toast } = useToast()
   const [updatingUser, setUpdatingUser] = useState<string | null>(null)
 
@@ -59,6 +60,15 @@ export function ExecutiveUserManagement() {
   }
 
   const promoteToExecutive = async (userId: string, userEmail: string) => {
+    if (!isSuperAdmin) {
+      toast({
+        title: 'Acesso negado',
+        description: 'Apenas o super administrador pode promover usuários.',
+        variant: 'destructive'
+      })
+      return
+    }
+
     setUpdatingUser(userId)
     
     try {
@@ -112,6 +122,15 @@ export function ExecutiveUserManagement() {
   }
 
   const demoteFromExecutive = async (userId: string, userEmail: string) => {
+    if (!isSuperAdmin) {
+      toast({
+        title: 'Acesso negado',
+        description: 'Apenas o super administrador pode remover permissões.',
+        variant: 'destructive'
+      })
+      return
+    }
+
     setUpdatingUser(userId)
     
     try {

@@ -2,6 +2,9 @@ import { ReactNode } from "react"
 import { ExecutiveAppSidebar } from "./ExecutiveAppSidebar"
 import { UserProfile } from "@/components/dashboard/UserProfile"
 import { useRoles } from "@/hooks/useRoles"
+import { Button } from "@/components/ui/button"
+import { BarChart3, Users } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -9,6 +12,8 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isExecutive } = useRoles()
+  const location = useLocation()
+  const isExecutivePage = location.pathname.includes('/executive')
   
   return (
     <div className="min-h-screen bg-background">
@@ -19,8 +24,33 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center justify-between h-full px-6">
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-semibold text-foreground">
-                Dashboard Comercial
+                {isExecutivePage ? 'Dashboard Executive' : 'Dashboard Comercial'}
               </h1>
+              
+              {isExecutive && (
+                <div className="flex items-center gap-2">
+                  <Button 
+                    asChild 
+                    variant={isExecutivePage ? "outline" : "default"} 
+                    size="sm"
+                  >
+                    <Link to="/dashboard">
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Individual
+                    </Link>
+                  </Button>
+                  <Button 
+                    asChild 
+                    variant={isExecutivePage ? "default" : "outline"} 
+                    size="sm"
+                  >
+                    <Link to="/executive">
+                      <Users className="w-4 h-4 mr-2" />
+                      Executive
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </div>
             
             <UserProfile />

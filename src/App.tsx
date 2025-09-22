@@ -6,11 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ExecutiveProtectedRoute } from "@/components/ExecutiveProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import EmailConfirmation from "./pages/EmailConfirmation";
 import ResetPassword from "./pages/ResetPassword";
+import IndividualDashboard from "./pages/IndividualDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import Ranking from "./pages/Ranking";
 import NovaAbordagem from "./pages/NovaAbordagem";
@@ -40,10 +42,15 @@ const App = () => (
                   <Index />
                 </ProtectedRoute>
               } />
-              <Route path="/executive" element={
+              <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <ExecutiveDashboard />
+                  <IndividualDashboard />
                 </ProtectedRoute>
+              } />
+              <Route path="/executive" element={
+                <ExecutiveProtectedRoute>
+                  <ExecutiveDashboard />
+                </ExecutiveProtectedRoute>
               } />
               <Route path="/ranking" element={
                 <ProtectedRoute>

@@ -16,11 +16,13 @@ export function useRoles() {
   const [roles, setRoles] = useState<UserRole[]>([])
   const [loading, setLoading] = useState(true)
   const [isExecutive, setIsExecutive] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
 
   useEffect(() => {
     if (!user) {
       setRoles([])
       setIsExecutive(false)
+      setIsSuperAdmin(false)
       setLoading(false)
       return
     }
@@ -32,6 +34,10 @@ export function useRoles() {
     if (!user) return
 
     try {
+      // Verificar se é o super admin (email específico)
+      const isSuperAdminUser = user.email === 'fecass1507@icloud.com'
+      setIsSuperAdmin(isSuperAdminUser)
+
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -44,7 +50,10 @@ export function useRoles() {
 
       const userRoles = data?.map(r => r.role) || ['seller']
       setRoles(userRoles)
-      setIsExecutive(userRoles.includes('executive'))
+      
+      // Ser executive requer ter o role E ser autorizado pelo super admin (ou ser o próprio super admin)
+      const hasExecutiveRole = userRoles.includes('executive')
+      setIsExecutive(isSuperAdminUser || hasExecutiveRole)
     } catch (error) {
       console.error('Error in fetchUserRoles:', error)
     } finally {
@@ -57,6 +66,7 @@ export function useRoles() {
   return {
     roles,
     isExecutive,
+    isSuperAdmin,
     hasRole,
     loading,
     refetch: fetchUserRoles
