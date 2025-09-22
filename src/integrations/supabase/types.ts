@@ -146,6 +146,78 @@ export type Database = {
         }
         Relationships: []
       }
+      saldos_disponiveis: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          valor_liberado_para_saque: number
+          valor_sacado: number
+          valor_total_comissoes: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          valor_liberado_para_saque?: number
+          valor_sacado?: number
+          valor_total_comissoes?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          valor_liberado_para_saque?: number
+          valor_sacado?: number
+          valor_total_comissoes?: number
+        }
+        Relationships: []
+      }
+      saques: {
+        Row: {
+          chave_pix: string
+          created_at: string
+          data_processamento: string | null
+          data_solicitacao: string
+          id: string
+          observacoes: string | null
+          processado_por: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          valor_solicitado: number
+        }
+        Insert: {
+          chave_pix: string
+          created_at?: string
+          data_processamento?: string | null
+          data_solicitacao?: string
+          id?: string
+          observacoes?: string | null
+          processado_por?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          valor_solicitado: number
+        }
+        Update: {
+          chave_pix?: string
+          created_at?: string
+          data_processamento?: string | null
+          data_solicitacao?: string
+          id?: string
+          observacoes?: string | null
+          processado_por?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valor_solicitado?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

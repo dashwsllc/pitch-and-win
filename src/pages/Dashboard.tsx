@@ -8,17 +8,18 @@ import { FilterTabs } from "@/components/dashboard/FilterTabs"
 import { Button } from "@/components/ui/button"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { useRankingDataWithMock } from "@/hooks/useRankingDataWithMock"
+import { useWithdrawData } from "@/hooks/useWithdrawData"
 import { useAuth } from "@/hooks/useAuth"
+import { CommissionCard } from "@/components/dashboard/CommissionCard"
+import { WithdrawDialog } from "@/components/dashboard/WithdrawDialog"
 import { 
   DollarSign, 
   ShoppingCart, 
   TrendingUp, 
   Users,
   Target,
-  Clock,
   RefreshCw,
-  Banknote,
-  Wallet
+  Banknote
 } from "lucide-react"
 
 export default function Dashboard() {
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { metrics, loading, refetch } = useDashboardData(selectedFilter)
   const { ranking } = useRankingDataWithMock()
+  const { data: withdrawData, loading: withdrawLoading, refetch: refetchWithdraw } = useWithdrawData()
 
   const userName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || "Usuário"
   const userPosition = ranking.findIndex(r => r.isCurrentUser) + 1
@@ -45,15 +47,16 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center gap-3">
-              <Button
-                className="bg-gradient-withdraw hover:opacity-90 text-black font-medium px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              >
-                <Wallet className="w-4 h-4 mr-2" />
-                Sacar
-              </Button>
+              <WithdrawDialog 
+                availableAmount={withdrawData.availableAmount}
+                onWithdrawRequest={refetchWithdraw}
+              />
               
               <Button 
-                onClick={() => refetch()} 
+                onClick={() => {
+                  refetch()
+                  refetchWithdraw()
+                }} 
                 variant="ghost"
                 size="icon"
                 className="w-fit h-fit p-2 text-muted-foreground hover:text-foreground"
@@ -83,15 +86,16 @@ export default function Dashboard() {
             loading={loading}
           />
           
-          <MetricCard
+          <CommissionCard
             title="Comissão"
             value={new Intl.NumberFormat('pt-BR', { 
               style: 'currency', 
               currency: 'BRL' 
             }).format(metrics.comissao)}
-            icon={<Banknote className="w-8 h-8" />}
+            availableAmount={withdrawData.availableAmount}
+            icon={<Banknote className="w-6 h-6" />}
             trend={{ value: 12.5, isPositive: true }}
-            loading={loading}
+            loading={loading || withdrawLoading}
           />
           
           <MetricCard
