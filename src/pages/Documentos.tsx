@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { 
-  FileText, 
+  FolderOpen, 
   ExternalLink, 
   Eye, 
   Plus,
   Calendar,
-  User
+  User,
+  Link
 } from 'lucide-react'
 import { useDocuments, Document } from '@/hooks/useDocuments'
 import { AddDocumentDialog } from '@/components/documents/AddDocumentDialog'
@@ -25,7 +26,7 @@ const mockDocuments = {
       description: "Modelo de contrato para mentorias individuais",
       date: "2025-09-15",
       author: "Administrativo",
-      type: "PDF",
+      type: "LINK",
       link_url: "https://example.com/contrato-mentoria"
     },
     {
@@ -34,7 +35,7 @@ const mockDocuments = {
       description: "Diretrizes para cancelamentos e reembolsos",
       date: "2025-09-10",
       author: "Jurídico",
-      type: "PDF", 
+      type: "LINK", 
       link_url: "https://example.com/politica-cancelamento"
     }
   ],
@@ -45,7 +46,7 @@ const mockDocuments = {
       description: "Normas e diretrizes para a equipe de vendas",
       date: "2025-09-20",
       author: "RH",
-      type: "PDF",
+      type: "LINK",
       link_url: "https://example.com/codigo-conduta"
     },
     {
@@ -54,7 +55,7 @@ const mockDocuments = {
       description: "Regulamentação do sistema de comissionamento",
       date: "2025-09-18",
       author: "Financeiro",
-      type: "PDF",
+      type: "LINK",
       link_url: "https://example.com/politica-comissoes"
     }
   ],
@@ -65,7 +66,7 @@ const mockDocuments = {
       description: "Guia completo do processo de vendas",
       date: "2025-09-25",
       author: "Operacional",
-      type: "PDF",
+      type: "LINK",
       link_url: "https://example.com/manual-processos"
     },
     {
@@ -74,7 +75,7 @@ const mockDocuments = {
       description: "Material de treinamento para vendedores",
       date: "2025-09-22",
       author: "Treinamento",
-      type: "PDF",
+      type: "LINK",
       link_url: "https://example.com/treinamento-abordagem"
     }
   ]
@@ -100,17 +101,17 @@ export default function Documentos() {
   }
 
   const DocumentCard = ({ document, isRealDocument = false }: { document: Document | any, isRealDocument?: boolean }) => (
-    <Card className="border-border/50 hover:border-border transition-colors">
+    <Card className="border-border/50 hover:border-border transition-colors cursor-pointer" onClick={() => window.open(isRealDocument ? document.link_url : document.link_url, '_blank')}>
       <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3 flex-1">
-            <div className="w-10 h-10 rounded-lg bg-gradient-primary/10 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-primary" />
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1 w-full">
+            <div className="w-10 h-10 rounded-lg bg-gradient-primary/10 flex items-center justify-center flex-shrink-0">
+              <Link className="w-5 h-5 text-primary" />
             </div>
-            <div className="flex-1 space-y-1">
+            <div className="flex-1 space-y-2 min-w-0">
               <h3 className="font-semibold text-foreground">{document.title}</h3>
               <p className="text-sm text-muted-foreground">{document.description}</p>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   {formatDate(isRealDocument ? document.created_at : document.date)}
@@ -125,14 +126,18 @@ export default function Documentos() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="h-8"
-              onClick={() => window.open(isRealDocument ? document.link_url : document.link_url, '_blank')}
+              className="h-8 w-full sm:w-auto"
+              onClick={(e) => {
+                e.stopPropagation()
+                window.open(isRealDocument ? document.link_url : document.link_url, '_blank')
+              }}
             >
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Acessar</span>
             </Button>
           </div>
         </div>
@@ -146,11 +151,11 @@ export default function Documentos() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto px-4 overflow-x-hidden">
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-6xl mx-auto px-4 overflow-x-hidden space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
+              <FolderOpen className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Documentos</h1>
@@ -160,22 +165,24 @@ export default function Documentos() {
             </div>
           </div>
           {isExecutive && (
-            <AddDocumentDialog categories={categories} onDocumentAdded={handleDocumentAdded} />
+            <div className="w-full sm:w-auto">
+              <AddDocumentDialog categories={categories} onDocumentAdded={handleDocumentAdded} />
+            </div>
           )}
         </div>
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="vendas">Vendas</TabsTrigger>
-            <TabsTrigger value="regimento">Regimento Interno</TabsTrigger>
-            <TabsTrigger value="operacional">Operacional</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+            <TabsTrigger value="vendas" className="text-xs sm:text-sm">Vendas</TabsTrigger>
+            <TabsTrigger value="regimento" className="text-xs sm:text-sm">Regimento Interno</TabsTrigger>
+            <TabsTrigger value="operacional" className="text-xs sm:text-sm">Operacional</TabsTrigger>
           </TabsList>
 
           <TabsContent value="vendas" className="mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+                  <FolderOpen className="w-5 h-5" />
                   Documentos de Vendas
                 </CardTitle>
               </CardHeader>
@@ -211,7 +218,7 @@ export default function Documentos() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+                  <FolderOpen className="w-5 h-5" />
                   Regimento Interno
                 </CardTitle>
               </CardHeader>
@@ -247,7 +254,7 @@ export default function Documentos() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+                  <FolderOpen className="w-5 h-5" />
                   Documentos Operacionais
                 </CardTitle>
               </CardHeader>

@@ -8,7 +8,7 @@ import {
   Settings,
   Shield,
   ClipboardList,
-  Briefcase,
+  FolderOpen,
   Target,
   MessageSquare,
   ShoppingCart,
@@ -32,7 +32,7 @@ const menuItems = [
     ]
   },
   { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Documentos", url: "/documentos", icon: Briefcase },
+  { title: "Documentos", url: "/documentos", icon: FolderOpen },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
@@ -51,7 +51,7 @@ const sellerMenuItems = [
     ]
   },
   { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Documentos", url: "/documentos", icon: Briefcase },
+  { title: "Documentos", url: "/documentos", icon: FolderOpen },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
@@ -94,14 +94,15 @@ export function ExecutiveAppSidebar({ isExecutive = false }: AppSidebarProps) {
                   }`}
                   title={item.title}
                   onClick={() => {
-                    setOpenForm((prev) => !prev)
-                    navigate('/formularios')
+                    if (!isFormularioActive(item.submenu)) {
+                      navigate('/vendas')
+                    }
                   }}
                 >
                   <item.icon className="w-5 h-5" />
                 </button>
-                {(openForm || isFormularioActive(item.submenu)) && (
-                  <div className="mt-2 flex flex-col gap-2 p-2 border border-sidebar-primary/20 rounded-lg bg-sidebar-accent/20 animate-accordion-down">
+                {isFormularioActive(item.submenu) && (
+                  <div className="mt-2 flex flex-col gap-2 p-2 border border-sidebar-primary/20 rounded-lg bg-sidebar-accent/20">
                     {item.submenu.map((subItem) => (
                       <NavLink
                         key={subItem.title}

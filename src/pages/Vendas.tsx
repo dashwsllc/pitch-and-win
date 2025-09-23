@@ -104,23 +104,23 @@ export default function Vendas() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in max-w-7xl mx-auto px-4 overflow-x-hidden">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 animate-fade-in max-w-7xl mx-auto px-2 sm:px-4 overflow-x-hidden">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-              <ShoppingCart className="w-8 h-8 text-primary" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
+              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               Vendas Realizadas
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Acompanhe todas as suas vendas e performance
             </p>
           </div>
           <Button 
             onClick={() => navigate('/vendas/nova')}
-            className="bg-gradient-primary hover:opacity-90"
+            className="bg-gradient-primary hover:opacity-90 w-full sm:w-auto"
           >
-            <Plus className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">Nova Venda</span>
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Venda
           </Button>
         </div>
 
@@ -227,9 +227,9 @@ export default function Vendas() {
                     key={venda.id}
                     className="p-6 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-col md:flex-row items-start justify-between mb-4 gap-4">
+                      <div className="flex-1 w-full">
+                        <div className="flex flex-col sm:flex-row items-start gap-2 mb-2">
                           <h3 className="text-lg font-semibold text-foreground">
                             {venda.nome_comprador}
                           </h3>
@@ -238,24 +238,24 @@ export default function Vendas() {
                           </Badge>
                         </div>
                         
-                        <div className="grid gap-2 text-sm text-muted-foreground md:grid-cols-3">
+                        <div className="grid gap-2 text-sm text-muted-foreground grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                           <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4" />
-                            <span>{venda.email_comprador}</span>
+                            <Mail className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{venda.email_comprador}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4" />
+                            <Phone className="w-4 h-4 flex-shrink-0" />
                             <span>{venda.whatsapp_comprador}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
+                          <div className="flex items-center gap-2 sm:col-span-2 md:col-span-1">
+                            <Calendar className="w-4 h-4 flex-shrink-0" />
                             <span>{formatDate(venda.created_at)}</span>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-green-600 mb-1">
+                      <div className="text-right flex flex-col items-end">
+                        <div className="text-base sm:text-lg md:text-2xl font-bold text-green-600 mb-1">
                           {formatCurrency(venda.valor_venda)}
                         </div>
                         <Badge variant="outline" className="text-xs text-muted-foreground">
