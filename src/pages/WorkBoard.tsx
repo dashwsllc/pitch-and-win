@@ -9,14 +9,11 @@ import {
   Calendar,
   CheckCircle
 } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
+import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function WorkBoard() {
+  const { user } = useAuth()
   const [weeklyCount, setWeeklyCount] = useState(0)
   const [monthlyCount, setMonthlyCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -26,36 +23,38 @@ export default function WorkBoard() {
   const MONTHLY_GOAL = 20
 
   useEffect(() => {
-    fetchSalesData()
-  }, [])
+    if (user) {
+      fetchSalesData()
+    }
+  }, [user])
 
   const fetchSalesData = async () => {
+    if (!user) return
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
       const now = new Date()
-      const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
+      
+      // Início da semana (domingo)
+      const startOfWeek = new Date(now)
+      startOfWeek.setDate(now.getDate() - now.getDay())
       startOfWeek.setHours(0, 0, 0, 0)
       
+      // Início do mês
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       
-      // Vendas da semana
-      const { data: weeklyData, error: weeklyError } = await supabase
+      // Buscar vendas da semana
+      const { data: weeklyData } = await supabase
         .from('vendas')
-        .select('*')
-        .eq('vendedor_id', user.id)
+        .select('id')
+        .eq('user_id', user.id)
         .gte('created_at', startOfWeek.toISOString())
 
-      // Vendas do mês  
-      const { data: monthlyData, error: monthlyError } = await supabase
+      // Buscar vendas do mês  
+      const { data: monthlyData } = await supabase
         .from('vendas')
-        .select('*')
-        .eq('vendedor_id', user.id)
+        .select('id')
+        .eq('user_id', user.id)
         .gte('created_at', startOfMonth.toISOString())
-
-      if (weeklyError) console.error('Erro vendas semanais:', weeklyError)
-      if (monthlyError) console.error('Erro vendas mensais:', monthlyError)
 
       setWeeklyCount(weeklyData?.length || 0)
       setMonthlyCount(monthlyData?.length || 0)
