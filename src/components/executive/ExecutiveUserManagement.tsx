@@ -27,7 +27,10 @@ import {
   UserCheck, 
   Crown,
   Loader2,
-  Trash2
+  Trash2,
+  UserX,
+  RefreshCw,
+  Save
 } from 'lucide-react'
 import { useAllUsers, useRoles } from '@/hooks/useRoles'
 import { supabase } from '@/integrations/supabase/client'
@@ -38,6 +41,7 @@ export function ExecutiveUserManagement() {
   const { isSuperAdmin } = useRoles()
   const { toast } = useToast()
   const [updatingUser, setUpdatingUser] = useState<string | null>(null)
+  const [suspendingUser, setSuspendingUser] = useState<string | null>(null)
 
   const getInitials = (email: string) => {
     return email.substring(0, 2).toUpperCase()
@@ -114,6 +118,46 @@ export function ExecutiveUserManagement() {
     }
   }
 
+  const toggleUserSuspension = async (userId: string, userEmail: string, currentSuspended: boolean) => {
+    if (!isSuperAdmin) {
+      toast({
+        title: 'Acesso negado',
+        description: 'Apenas o super administrador pode suspender contas.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setSuspendingUser(userId)
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ suspended: !currentSuspended })
+        .eq('user_id', userId)
+
+      if (error) {
+        throw error
+      }
+
+      toast({
+        title: currentSuspended ? 'Conta reativada!' : 'Conta suspensa!',
+        description: `${userEmail} foi ${currentSuspended ? 'reativado' : 'suspenso'}.`
+      })
+
+      refetch()
+    } catch (error) {
+      console.error('Error toggling user suspension:', error)
+      toast({
+        title: 'Erro ao alterar status',
+        description: 'Não foi possível alterar o status da conta. Tente novamente.',
+        variant: 'destructive'
+      })
+    } finally {
+      setSuspendingUser(null)
+    }
+  }
+
   const deleteUser = async (userId: string, userEmail: string) => {
     if (!isSuperAdmin) {
       toast({
@@ -179,9 +223,17 @@ export function ExecutiveUserManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          Gerenciar Usuários ({users.length})
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Gerenciar Usuários ({users.length})
+          </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={refetch} variant="outline" size="sm">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Atualizar
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -190,20 +242,28 @@ export function ExecutiveUserManagement() {
             const userRoles = user.roles || []
             const isExecutive = userRoles.includes('executive')
             const role = isExecutive ? 'executive' : 'seller'
+            const isSuspended = user.suspended || false
             
             return (
-              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+              <div key={user.id} className={`flex items-center justify-between p-4 border rounded-lg ${isSuspended ? 'bg-muted/50 opacity-75' : ''}`}>
                 <div className="flex items-center gap-4">
                   <Avatar>
-                    <AvatarFallback className="bg-gradient-primary text-white">
+                    <AvatarFallback className={`${isSuspended ? 'bg-muted text-muted-foreground' : 'bg-gradient-primary text-white'}`}>
                       {getInitials(user.display_name || user.user_id)}
                     </AvatarFallback>
                   </Avatar>
                   
                   <div>
-                    <p className="font-medium text-foreground">
-                      {user.display_name || 'Usuário'}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">
+                        {user.display_name || 'Usuário'}
+                      </p>
+                      {isSuspended && (
+                        <Badge variant="destructive" className="text-xs">
+                          Suspenso
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       ID: {user.user_id?.substring(0, 8)}...
                     </p>
@@ -215,12 +275,12 @@ export function ExecutiveUserManagement() {
                 <div className="flex items-center gap-2">
                   <Select
                     value={role}
-                    onValueChange={(newRole) => changeUserRole(user.id, user.display_name || user.user_id, newRole)}
-                    disabled={updatingUser === user.id}
+                    onValueChange={(newRole) => changeUserRole(user.user_id, user.display_name || user.user_id, newRole)}
+                    disabled={updatingUser === user.user_id || isSuspended}
                   >
                     <SelectTrigger className="w-[130px]">
                       <SelectValue>
-                        {updatingUser === user.id ? (
+                        {updatingUser === user.user_id ? (
                           <div className="flex items-center gap-1">
                             <Loader2 className="w-3 h-3 animate-spin" />
                             <span className="text-xs">Alterando...</span>
@@ -252,20 +312,32 @@ export function ExecutiveUserManagement() {
                   </Select>
 
                   {isSuperAdmin && (
+                    <Button
+                      variant={isSuspended ? "outline" : "destructive"}
+                      size="sm"
+                      onClick={() => toggleUserSuspension(user.user_id, user.display_name || user.user_id, isSuspended)}
+                      disabled={suspendingUser === user.user_id}
+                    >
+                      {suspendingUser === user.user_id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <UserX className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+
+                  {isSuperAdmin && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button 
                           variant="destructive"
                           size="sm"
-                          disabled={updatingUser === user.id}
+                          disabled={updatingUser === user.user_id}
                         >
-                          {updatingUser === user.id ? (
+                          {updatingUser === user.user_id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <>
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Excluir Conta
-                            </>
+                            <Trash2 className="w-4 h-4" />
                           )}
                         </Button>
                       </AlertDialogTrigger>
@@ -280,7 +352,7 @@ export function ExecutiveUserManagement() {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => deleteUser(user.id, user.display_name || user.user_id)}
+                            onClick={() => deleteUser(user.user_id, user.display_name || user.user_id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             Excluir Permanentemente

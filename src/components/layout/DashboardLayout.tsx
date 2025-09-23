@@ -3,7 +3,7 @@ import { ExecutiveAppSidebar } from "./ExecutiveAppSidebar"
 import { UserProfile } from "@/components/dashboard/UserProfile"
 import { useRoles } from "@/hooks/useRoles"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Users } from "lucide-react"
+import { BarChart3, Users, Trophy } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
 interface DashboardLayoutProps {
@@ -53,7 +53,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               )}
             </div>
             
-            <UserProfile />
+            <div className="flex items-center gap-3">
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/ranking">
+                  <Trophy className="w-4 h-4" />
+                </Link>
+              </Button>
+              <UserProfile />
+            </div>
           </div>
         </header>
         
