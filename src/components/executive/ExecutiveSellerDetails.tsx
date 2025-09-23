@@ -9,6 +9,13 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { 
   User, 
   DollarSign, 
@@ -16,7 +23,8 @@ import {
   UserCheck,
   TrendingUp,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  Eye
 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAllUsers } from '@/hooks/useRoles'
@@ -328,18 +336,66 @@ export function ExecutiveSellerDetails() {
                       <p className="text-sm text-muted-foreground text-center py-4">
                         Nenhuma venda encontrada.
                       </p>
-                    ) : (
+                     ) : (
                       stats.recentSales.map((sale, index) => (
                         <div key={index} className="flex items-center justify-between p-3 border rounded">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium text-sm">{sale.nome_produto}</p>
                             <p className="text-xs text-muted-foreground">
                               {new Date(sale.created_at).toLocaleDateString('pt-BR')}
                             </p>
                           </div>
-                          <p className="font-semibold text-foreground">
-                            {formatCurrency(Number(sale.valor_venda))}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-foreground">
+                              {formatCurrency(Number(sale.valor_venda))}
+                            </p>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                  <DialogTitle>Detalhes da Venda</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div>
+                                    <p className="text-sm font-medium">Produto:</p>
+                                    <p className="text-sm text-muted-foreground">{sale.nome_produto}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Comprador:</p>
+                                    <p className="text-sm text-muted-foreground">{sale.nome_comprador}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Email:</p>
+                                    <p className="text-sm text-muted-foreground">{sale.email_comprador}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">WhatsApp:</p>
+                                    <p className="text-sm text-muted-foreground">{sale.whatsapp_comprador}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Valor:</p>
+                                    <p className="text-sm text-muted-foreground">{formatCurrency(Number(sale.valor_venda))}</p>
+                                  </div>
+                                  {sale.consideracoes_gerais && (
+                                    <div>
+                                      <p className="text-sm font-medium">Considerações Gerais:</p>
+                                      <p className="text-sm text-muted-foreground">{sale.consideracoes_gerais}</p>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <p className="text-sm font-medium">Data:</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      {new Date(sale.created_at).toLocaleString('pt-BR')}
+                                    </p>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
                       ))
                     )}
@@ -367,10 +423,10 @@ export function ExecutiveSellerDetails() {
                     <p className="text-sm text-muted-foreground text-center py-4">
                       Nenhuma abordagem encontrada.
                     </p>
-                  ) : (
+                   ) : (
                     stats.recentApproaches.map((approach, index) => (
                       <div key={index} className="flex items-center justify-between p-3 border rounded">
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium text-sm">{approach.nomes_abordados} pessoas abordadas</p>
                           <p className="text-xs text-muted-foreground">
                             {new Date(approach.created_at).toLocaleDateString('pt-BR')}
@@ -379,13 +435,57 @@ export function ExecutiveSellerDetails() {
                             {approach.mostrou_ia ? 'Mostrou IA' : 'Não mostrou IA'}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium">
-                            {approach.tempo_medio_abordagem}min
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            tempo médio
-                          </p>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <p className="text-sm font-medium">
+                              {approach.tempo_medio_abordagem}min
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              tempo médio
+                            </p>
+                          </div>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Detalhes da Abordagem</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <p className="text-sm font-medium">Pessoas Abordadas:</p>
+                                  <p className="text-sm text-muted-foreground">{approach.nomes_abordados}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Tempo Médio:</p>
+                                  <p className="text-sm text-muted-foreground">{approach.tempo_medio_abordagem} minutos</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Mostrou IA:</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {approach.mostrou_ia ? 'Sim' : 'Não'}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Visão Geral:</p>
+                                  <p className="text-sm text-muted-foreground">{approach.visao_geral}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Dados Abordados:</p>
+                                  <p className="text-sm text-muted-foreground">{approach.dados_abordados}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Data:</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {new Date(approach.created_at).toLocaleString('pt-BR')}
+                                  </p>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
                     ))

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
@@ -51,7 +52,8 @@ export default function RegistrarVenda() {
       valor_venda: parseFloat(valorSelecionado),
       nome_comprador: formData.get('nome_comprador') as string,
       whatsapp_comprador: formData.get('whatsapp_comprador') as string,
-      email_comprador: formData.get('email_comprador') as string
+      email_comprador: formData.get('email_comprador') as string,
+      consideracoes_gerais: formData.get('consideracoes_gerais') as string
     }
 
     const { error } = await supabase
@@ -181,6 +183,16 @@ export default function RegistrarVenda() {
                     className="w-full"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="consideracoes_gerais">Considerações Gerais <span className="text-muted-foreground">(Opcional)</span></Label>
+                <Textarea
+                  id="consideracoes_gerais"
+                  name="consideracoes_gerais"
+                  placeholder="Adicione observações ou comentários sobre esta venda..."
+                  className="w-full min-h-[100px]"
+                />
               </div>
 
               <div className="flex gap-4 pt-4">

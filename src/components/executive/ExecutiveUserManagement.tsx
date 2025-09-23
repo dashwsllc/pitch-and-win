@@ -28,7 +28,7 @@ import {
   Crown,
   Loader2,
   Trash2,
-  UserX,
+  UserMinus,
   RefreshCw,
   Save
 } from 'lucide-react'
@@ -312,18 +312,45 @@ export function ExecutiveUserManagement() {
                   </Select>
 
                   {isSuperAdmin && (
-                    <Button
-                      variant={isSuspended ? "outline" : "destructive"}
-                      size="sm"
-                      onClick={() => toggleUserSuspension(user.user_id, user.display_name || user.user_id, isSuspended)}
-                      disabled={suspendingUser === user.user_id}
-                    >
-                      {suspendingUser === user.user_id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <UserX className="w-4 h-4" />
-                      )}
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2 text-yellow-600 border-yellow-600 hover:bg-yellow-50"
+                          disabled={suspendingUser === user.user_id}
+                        >
+                          {suspendingUser === user.user_id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <UserMinus className="w-4 h-4" />
+                          )}
+                          {isSuspended ? 'Desuspender' : 'Suspender'}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {isSuspended ? 'Desuspender conta' : 'Suspender conta'}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {isSuspended 
+                              ? 'Tem certeza que deseja reativar esta conta? O usuário poderá acessar o sistema novamente.'
+                              : 'Tem certeza que deseja suspender esta conta? O usuário não poderá mais acessar o sistema.'
+                            }
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => toggleUserSuspension(user.user_id, user.display_name || user.user_id, isSuspended)}
+                            className={isSuspended ? "bg-green-600 hover:bg-green-700" : "bg-yellow-600 hover:bg-yellow-700"}
+                          >
+                            {isSuspended ? 'Desuspender' : 'Suspender'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
 
                   {isSuperAdmin && (

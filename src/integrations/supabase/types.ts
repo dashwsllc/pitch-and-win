@@ -247,6 +247,7 @@ export type Database = {
       }
       vendas: {
         Row: {
+          consideracoes_gerais: string | null
           created_at: string
           email_comprador: string
           id: string
@@ -258,6 +259,7 @@ export type Database = {
           whatsapp_comprador: string
         }
         Insert: {
+          consideracoes_gerais?: string | null
           created_at?: string
           email_comprador: string
           id?: string
@@ -269,6 +271,7 @@ export type Database = {
           whatsapp_comprador: string
         }
         Update: {
+          consideracoes_gerais?: string | null
           created_at?: string
           email_comprador?: string
           id?: string

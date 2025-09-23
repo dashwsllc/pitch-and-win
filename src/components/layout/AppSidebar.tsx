@@ -6,7 +6,8 @@ import {
   Trophy,
   Users,
   User,
-  Settings
+  Settings,
+  FileText
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 
@@ -16,6 +17,7 @@ const menuItems = [
   { title: "Vendas", url: "/vendas", icon: DollarSign },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Clientes", url: "/clientes", icon: Users },
+  { title: "Documentos", url: "/documentos", icon: FileText },
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ]

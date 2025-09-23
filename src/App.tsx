@@ -20,6 +20,7 @@ import Abordagens from "./pages/Abordagens";
 import NovaAbordagem from "./pages/NovaAbordagem";
 import RegistrarVenda from "./pages/RegistrarVenda";
 import Clientes from "./pages/Clientes";
+import Documentos from "./pages/Documentos";
 import Perfil from "./pages/Perfil";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
@@ -82,6 +83,11 @@ const App = () => (
               <Route path="/clientes" element={
                 <ProtectedRoute>
                   <Clientes />
+                </ProtectedRoute>
+              } />
+              <Route path="/documentos" element={
+                <ProtectedRoute>
+                  <Documentos />
                 </ProtectedRoute>
               } />
               <Route path="/perfil" element={
