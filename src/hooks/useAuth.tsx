@@ -55,18 +55,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email)
         if (mounted) {
           setSession(session)
           setUser(session?.user ?? null)
           setLoading(false)
         }
-        // controlar heartbeat
+        // controlar heartbeat sem bloquear o callback
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           const uid = session?.user?.id
           if (uid) {
-            await updateLastSeen(uid)
+            // Deferir atualização para evitar deadlocks
+            setTimeout(() => {
+              updateLastSeen(uid)
+            }, 0)
             if (heartbeat) window.clearInterval(heartbeat)
             heartbeat = window.setInterval(() => updateLastSeen(uid), 60_000)
           }

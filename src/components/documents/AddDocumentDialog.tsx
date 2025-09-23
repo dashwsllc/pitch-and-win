@@ -43,16 +43,12 @@ export function AddDocumentDialog({ categories, onDocumentAdded }: AddDocumentDi
 
       // Se for nova categoria, criar primeiro
       if (isNewCategory && newCategoryName) {
-        const success = await addCategory(newCategoryName)
-        if (!success) {
+        const created = await addCategory(newCategoryName)
+        if (!created) {
           setLoading(false)
           return
         }
-        // Buscar a categoria recém-criada
-        const newCategory = categories.find(cat => cat.name === newCategoryName)
-        if (newCategory) {
-          categoryId = newCategory.id
-        }
+        categoryId = created.id
       }
 
       if (!categoryId) {

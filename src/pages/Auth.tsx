@@ -94,9 +94,7 @@ export default function Auth() {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">WS LTDA</h1>
-          <p className="text-muted-foreground">
-            Sistema de gerenciamento comercial
-          </p>
+          {/* Subtitle removed as requested */}
         </div>
 
         {/* Auth Forms */}
@@ -250,9 +248,9 @@ export default function Auth() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Ao continuar, você concorda com nossos Termos de Uso
-        </p>
+        <div className="mt-6 text-center">
+          <p className="text-sm text-muted-foreground">Created and developed by <span className="font-medium text-foreground">Sinclair</span></p>
+        </div>
       </div>
     </div>
   )

@@ -68,10 +68,10 @@ export function useDocuments() {
     }
   }
 
-  const addCategory = async (name: string) => {
+  const addCategory = async (name: string): Promise<DocumentCategory | null> => {
     if (!user?.id) {
       toast.error('Usuário não encontrado')
-      return false
+      return null
     }
 
     try {
@@ -84,16 +84,16 @@ export function useDocuments() {
       if (error) {
         console.error('Error adding category:', error)
         toast.error('Erro ao adicionar categoria')
-        return false
+        return null
       }
 
       setCategories(prev => [...prev, data])
       toast.success('Categoria adicionada com sucesso!')
-      return true
+      return data
     } catch (error) {
       console.error('Error adding category:', error)
       toast.error('Erro ao adicionar categoria')
-      return false
+      return null
     }
   }
 

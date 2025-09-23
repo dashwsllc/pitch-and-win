@@ -27,9 +27,7 @@ export default function EmailConfirmation() {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">WS LTDA</h1>
-          <p className="text-muted-foreground">
-            Sistema de gerenciamento comercial
-          </p>
+          {/* Subtitle removed as requested */}
         </div>
 
         <Card className="border-border/50 shadow-lg">

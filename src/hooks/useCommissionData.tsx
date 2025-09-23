@@ -21,7 +21,7 @@ export function useCommissionData() {
     if (!user) return
 
     try {
-      // Buscar todas as vendas do usuário para calcular comissão total
+      // Buscar todas as vendas do usuário para calcular comissão total (10%)
       const { data: vendas, error: vendasError } = await supabase
         .from('vendas')
         .select('valor_venda')
@@ -29,11 +29,10 @@ export function useCommissionData() {
 
       if (vendasError) throw vendasError
 
-      // Calcular comissão total (12% das vendas)
       const totalVendas = vendas?.reduce((sum, venda) => sum + parseFloat(venda.valor_venda.toString()), 0) || 0
-      const totalCommissions = totalVendas * 0.12
+      const totalCommissions = totalVendas * 0.10
 
-      // Buscar saldo atual para respeitar bloqueios por saques pendentes
+      // Buscar saldo atual
       const { data: saldo, error: saldoError } = await supabase
         .from('saldos_disponiveis')
         .select('*')
@@ -42,20 +41,33 @@ export function useCommissionData() {
 
       if (saldoError) throw saldoError
 
+      // Buscar saques pendentes para reservar valor
+      const { data: saquesPendentes, error: pendError } = await supabase
+        .from('saques')
+        .select('valor_solicitado')
+        .eq('user_id', user.id)
+        .eq('status', 'pendente')
+
+      if (pendError) throw pendError
+
+      const pendingAmount = saquesPendentes?.reduce((sum, s) => sum + parseFloat(s.valor_solicitado.toString()), 0) || 0
       const currentWithdrawn = parseFloat((saldo?.valor_sacado ?? 0).toString())
-      const currentAvailable = saldo ? parseFloat(saldo.valor_liberado_para_saque.toString()) : totalCommissions
+      const availableComputed = Math.max(0, totalCommissions - currentWithdrawn - pendingAmount)
 
       setData({
         totalCommissions,
-        availableForWithdrawal: Math.max(0, currentAvailable),
+        availableForWithdrawal: availableComputed,
         withdrawnAmount: currentWithdrawn,
       })
 
-      // Atualizar ou criar registro de saldo sem sobrescrever o disponível
+      // Sincronizar tabela de saldos com os valores corretos
       if (saldo) {
         const { error: updateError } = await supabase
           .from('saldos_disponiveis')
-          .update({ valor_total_comissoes: totalCommissions })
+          .update({ 
+            valor_total_comissoes: totalCommissions,
+            valor_liberado_para_saque: availableComputed,
+          })
           .eq('user_id', user.id)
         if (updateError) console.error('Error updating balance:', updateError)
       } else {
@@ -64,7 +76,7 @@ export function useCommissionData() {
           .insert({
             user_id: user.id,
             valor_total_comissoes: totalCommissions,
-            valor_liberado_para_saque: totalCommissions,
+            valor_liberado_para_saque: availableComputed,
             valor_sacado: 0,
           })
         if (insertError) console.error('Error inserting balance:', insertError)

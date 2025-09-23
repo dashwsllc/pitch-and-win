@@ -13,9 +13,9 @@ import {
   ChevronDown,
   ChevronRight
 } from "lucide-react"
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -38,6 +38,8 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [openForm, setOpenForm] = useState(false)
 
   const isFormularioActive = (submenu: any[]) => {
     return submenu.some(subItem => location.pathname === subItem.url) || location.pathname === '/formularios'
@@ -57,33 +59,42 @@ export function AppSidebar() {
         {menuItems.map((item) => {
           if (item.isDropdown && item.submenu) {
             return (
-              <DropdownMenu key={item.title}>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={`flex items-center justify-center w-12 h-12 rounded-lg transition-all ${
-                      isFormularioActive(item.submenu)
-                        ? "bg-sidebar-accent text-sidebar-primary border border-sidebar-primary/20"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                    }`}
-                    title={item.title}
-                  >
-                    <item.icon className="w-5 h-5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="right" align="start" className="ml-2">
-                  {item.submenu.map((subItem) => (
-                    <DropdownMenuItem key={subItem.title} asChild>
+              <div key={item.title} className="flex flex-col items-center">
+                <button
+                  className={`flex items-center justify-center w-12 h-12 rounded-lg transition-all ${
+                    isFormularioActive(item.submenu)
+                      ? "bg-sidebar-accent text-sidebar-primary border border-sidebar-primary/20"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  }`}
+                  title={item.title}
+                  onClick={() => {
+                    setOpenForm((prev) => !prev)
+                    navigate('/formularios')
+                  }}
+                >
+                  <item.icon className="w-5 h-5" />
+                </button>
+                {(openForm || isFormularioActive(item.submenu)) && (
+                  <div className="mt-1 flex flex-col gap-2">
+                    {item.submenu.map((subItem) => (
                       <NavLink
+                        key={subItem.title}
                         to={subItem.url}
-                        className="flex items-center gap-2 cursor-pointer"
+                        className={({ isActive }) =>
+                          `flex items-center justify-center w-12 h-10 rounded-lg transition-all ${
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-primary border border-sidebar-primary/20"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                          }`
+                        }
+                        title={subItem.title}
                       >
                         <subItem.icon className="w-4 h-4" />
-                        {subItem.title}
                       </NavLink>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    ))}
+                  </div>
+                )}
+              </div>
             )
           }
 
