@@ -118,8 +118,8 @@ export default function Abordagens() {
             onClick={() => navigate('/abordagens/nova')}
             className="bg-gradient-primary hover:opacity-90"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Abordagem
+            <Plus className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Nova Abordagem</span>
           </Button>
         </div>
 

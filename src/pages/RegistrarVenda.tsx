@@ -117,7 +117,7 @@ export default function RegistrarVenda() {
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione o produto" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background border-border z-50">
                       {PRODUTOS_MENTORIA.map((produto) => (
                         <SelectItem key={produto.value} value={produto.value}>
                           {produto.label}
@@ -138,7 +138,7 @@ export default function RegistrarVenda() {
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione o valor" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background border-border z-50">
                       {VALORES_VENDA.map((valor) => (
                         <SelectItem key={valor.value} value={valor.value}>
                           {valor.label}

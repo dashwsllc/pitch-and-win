@@ -6,7 +6,7 @@ import {
   Users,
   User,
   Settings,
-  FileText,
+  Briefcase,
   Target,
   MessageSquare,
   ShoppingCart,
@@ -30,7 +30,7 @@ const menuItems = [
     ]
   },
   { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Documentos", url: "/documentos", icon: FileText },
+  { title: "Documentos", url: "/documentos", icon: Briefcase },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
@@ -61,7 +61,7 @@ export function AppSidebar() {
             return (
               <div key={item.title} className="flex flex-col items-center">
                 <button
-                  className={`flex items-center justify-center w-12 h-12 rounded-lg transition-all ${
+                  className={`flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-300 ${
                     isFormularioActive(item.submenu)
                       ? "bg-sidebar-accent text-sidebar-primary border border-sidebar-primary/20"
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
@@ -75,7 +75,7 @@ export function AppSidebar() {
                   <item.icon className="w-5 h-5" />
                 </button>
                 {(openForm || isFormularioActive(item.submenu)) && (
-                  <div className="mt-1 flex flex-col gap-2">
+                  <div className="mt-2 flex flex-col gap-2 p-2 border border-sidebar-primary/20 rounded-lg bg-sidebar-accent/20 animate-accordion-down">
                     {item.submenu.map((subItem) => (
                       <NavLink
                         key={subItem.title}

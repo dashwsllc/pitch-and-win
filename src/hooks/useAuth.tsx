@@ -24,10 +24,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const updateLastSeen = async (uid: string) => {
       try {
-        await supabase
+        // Só atualiza se passou mais de 1 minuto desde a última atualização
+        const { data: profile } = await supabase
           .from('profiles')
-          .update({ last_seen_at: new Date().toISOString() })
+          .select('last_seen_at')
           .eq('user_id', uid)
+          .single()
+
+        if (profile) {
+          const lastSeen = new Date(profile.last_seen_at)
+          const now = new Date()
+          const timeDiff = now.getTime() - lastSeen.getTime()
+          
+          // Só atualiza se passou mais de 60 segundos (1 minuto)
+          if (timeDiff > 60000) {
+            await supabase
+              .from('profiles')
+              .update({ last_seen_at: now.toISOString() })
+              .eq('user_id', uid)
+          }
+        }
       } catch (e) {
         console.error('Erro ao atualizar last_seen_at', e)
       }
@@ -43,10 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSession(session)
           setUser(session?.user ?? null)
           setLoading(false)
-          if (session?.user?.id) {
-            updateLastSeen(session.user.id)
-            heartbeat = window.setInterval(() => updateLastSeen(session.user!.id), 60_000)
-          }
+          // Não atualiza last_seen_at na inicialização, apenas quando há login ativo
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
@@ -63,15 +76,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false)
         }
         // controlar heartbeat sem bloquear o callback
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (event === 'SIGNED_IN') {
           const uid = session?.user?.id
           if (uid) {
-            // Deferir atualização para evitar deadlocks
+            // Só atualiza no login real, não no refresh de token
             setTimeout(() => {
               updateLastSeen(uid)
             }, 0)
             if (heartbeat) window.clearInterval(heartbeat)
-            heartbeat = window.setInterval(() => updateLastSeen(uid), 60_000)
+            // Atualiza a cada 5 minutos em vez de 1 minuto para ser mais preciso
+            heartbeat = window.setInterval(() => updateLastSeen(uid), 300_000)
           }
         }
         if (event === 'SIGNED_OUT') {

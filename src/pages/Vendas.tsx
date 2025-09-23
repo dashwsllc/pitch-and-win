@@ -119,8 +119,8 @@ export default function Vendas() {
             onClick={() => navigate('/vendas/nova')}
             className="bg-gradient-primary hover:opacity-90"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Venda
+            <Plus className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Nova Venda</span>
           </Button>
         </div>
 
