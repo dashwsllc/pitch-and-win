@@ -194,7 +194,7 @@ export default function Configuracoes() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="text-center p-4 bg-muted/30 rounded-lg">
                 <h4 className="font-semibold text-foreground">Versão</h4>
-                <p className="text-sm text-muted-foreground">v1.0.0</p>
+                <p className="text-sm text-muted-foreground">v2.1.0</p>
               </div>
               
               <div className="text-center p-4 bg-muted/30 rounded-lg">

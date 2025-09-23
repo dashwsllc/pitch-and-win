@@ -36,7 +36,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   >
                     <Link to="/dashboard">
                       <BarChart3 className="w-4 h-4 mr-2" />
-                      Individual
+                      Seller
                     </Link>
                   </Button>
                   <Button 

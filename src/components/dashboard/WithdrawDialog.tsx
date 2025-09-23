@@ -66,7 +66,7 @@ export function WithdrawDialog({ availableAmount, onWithdrawRequest }: WithdrawD
 
       toast({
         title: "Saque solicitado com sucesso!",
-        description: "Solicitação de saque enviada!",
+        description: "Sua solicitação será analisada pelo executive",
       })
 
       setAmount("")
@@ -99,10 +99,13 @@ export function WithdrawDialog({ availableAmount, onWithdrawRequest }: WithdrawD
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ArrowDownToLine className="w-5 h-5" />
-            Solicitar Saque
-          </DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <ArrowDownToLine className="w-5 h-5" />
+                Solicitar Saque
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                Sua solicitação será enviada para análise do executive
+              </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

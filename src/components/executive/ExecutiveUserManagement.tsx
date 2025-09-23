@@ -60,11 +60,11 @@ export function ExecutiveUserManagement() {
     )
   }
 
-  const promoteToExecutive = async (userId: string, userEmail: string) => {
+  const changeUserRole = async (userId: string, userEmail: string, newRole: string) => {
     if (!isSuperAdmin) {
       toast({
         title: 'Acesso negado',
-        description: 'Apenas o super administrador pode promover usuários.',
+        description: 'Apenas o super administrador pode alterar cargos.',
         variant: 'destructive'
       })
       return
@@ -73,89 +73,40 @@ export function ExecutiveUserManagement() {
     setUpdatingUser(userId)
     
     try {
-      // Verificar se já tem o role executive
-      const { data: existingRole } = await supabase
-        .from('user_roles')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('role', 'executive')
-        .maybeSingle()
-
-      if (existingRole) {
-        toast({
-          title: 'Usuário já é Executive',
-          description: 'Este usuário já possui permissões de executive.',
-          variant: 'destructive'
-        })
-        return
-      }
-
-      // Inserir novo role de executive
-      const { error } = await supabase
-        .from('user_roles')
-        .insert([
-          {
-            user_id: userId,
-            role: 'executive'
-          }
-        ])
-
-      if (error) {
-        throw error
-      }
-
-      toast({
-        title: 'Usuário promovido!',
-        description: `${userEmail} agora possui permissões de Executive.`
-      })
-
-      refetch()
-    } catch (error) {
-      console.error('Error promoting user:', error)
-      toast({
-        title: 'Erro ao promover usuário',
-        description: 'Não foi possível promover o usuário. Tente novamente.',
-        variant: 'destructive'
-      })
-    } finally {
-      setUpdatingUser(null)
-    }
-  }
-
-  const demoteFromExecutive = async (userId: string, userEmail: string) => {
-    if (!isSuperAdmin) {
-      toast({
-        title: 'Acesso negado',
-        description: 'Apenas o super administrador pode remover permissões.',
-        variant: 'destructive'
-      })
-      return
-    }
-
-    setUpdatingUser(userId)
-    
-    try {
-      const { error } = await supabase
+      // Remover role executive existente se houver
+      await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
         .eq('role', 'executive')
 
-      if (error) {
-        throw error
+      // Se o novo role é executive, inserir o role
+      if (newRole === 'executive') {
+        const { error } = await supabase
+          .from('user_roles')
+          .insert([
+            {
+              user_id: userId,
+              role: 'executive'
+            }
+          ])
+
+        if (error) {
+          throw error
+        }
       }
 
       toast({
-        title: 'Permissões removidas!',
-        description: `${userEmail} não possui mais permissões de Executive.`
+        title: 'Cargo alterado!',
+        description: `${userEmail} agora é ${newRole === 'executive' ? 'Executive' : 'Seller'}.`
       })
 
       refetch()
     } catch (error) {
-      console.error('Error demoting user:', error)
+      console.error('Error changing user role:', error)
       toast({
-        title: 'Erro ao remover permissões',
-        description: 'Não foi possível remover as permissões. Tente novamente.',
+        title: 'Erro ao alterar cargo',
+        description: 'Não foi possível alterar o cargo. Tente novamente.',
         variant: 'destructive'
       })
     } finally {
@@ -262,78 +213,43 @@ export function ExecutiveUserManagement() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {isExecutive ? (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          disabled={updatingUser === user.id}
-                        >
-                          {updatingUser === user.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            'Remover Executive'
-                          )}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Remover permissões de Executive?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta ação removerá as permissões de Executive do usuário {user.display_name || user.user_id}. 
-                            Ele perderá acesso ao dashboard executivo e suas funcionalidades.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => demoteFromExecutive(user.id, user.display_name || user.user_id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Remover Permissões
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  ) : (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          size="sm"
-                          className="bg-gradient-primary hover:opacity-90"
-                          disabled={updatingUser === user.id}
-                        >
-                          {updatingUser === user.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Shield className="w-4 h-4 mr-2" />
-                              Promover a Executive
-                            </>
-                          )}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Promover a Executive?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta ação dará permissões de Executive para {user.display_name || user.user_id}. 
-                            Ele terá acesso ao dashboard executivo e poderá gerenciar outros usuários.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => promoteToExecutive(user.id, user.display_name || user.user_id)}
-                            className="bg-gradient-primary hover:opacity-90"
-                          >
-                            Promover a Executive
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
+                  <Select
+                    value={role}
+                    onValueChange={(newRole) => changeUserRole(user.id, user.display_name || user.user_id, newRole)}
+                    disabled={updatingUser === user.id}
+                  >
+                    <SelectTrigger className="w-[130px]">
+                      <SelectValue>
+                        {updatingUser === user.id ? (
+                          <div className="flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <span className="text-xs">Alterando...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            {role === 'executive' ? <Crown className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
+                            <span className="text-xs capitalize">
+                              {role === 'executive' ? 'Executive' : 'Seller'}
+                            </span>
+                          </div>
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="seller">
+                        <div className="flex items-center gap-2">
+                          <UserCheck className="w-3 h-3" />
+                          Seller
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="executive">
+                        <div className="flex items-center gap-2">
+                          <Crown className="w-3 h-3" />
+                          Executive
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
 
                   {isSuperAdmin && (
                     <AlertDialog>

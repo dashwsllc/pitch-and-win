@@ -8,7 +8,7 @@ import { FilterTabs } from "@/components/dashboard/FilterTabs"
 import { Button } from "@/components/ui/button"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { useRankingDataWithMock } from "@/hooks/useRankingDataWithMock"
-import { useWithdrawData } from "@/hooks/useWithdrawData"
+import { useCommissionData } from "@/hooks/useCommissionData"
 import { useAuth } from "@/hooks/useAuth"
 import { CommissionCard } from "@/components/dashboard/CommissionCard"
 import { WithdrawDialog } from "@/components/dashboard/WithdrawDialog"
@@ -27,7 +27,7 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { metrics, loading, refetch } = useDashboardData(selectedFilter)
   const { ranking } = useRankingDataWithMock()
-  const { data: withdrawData, loading: withdrawLoading, refetch: refetchWithdraw } = useWithdrawData()
+  const { data: commissionData, loading: commissionLoading, refetch: refetchCommission } = useCommissionData()
 
   const userName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || "Usuário"
   const userPosition = ranking.findIndex(r => r.isCurrentUser) + 1
@@ -48,14 +48,14 @@ export default function Dashboard() {
             
             <div className="flex items-center gap-3">
               <WithdrawDialog 
-                availableAmount={withdrawData.availableAmount}
-                onWithdrawRequest={refetchWithdraw}
+                availableAmount={commissionData.availableForWithdrawal}
+                onWithdrawRequest={refetchCommission}
               />
               
               <Button 
                 onClick={() => {
                   refetch()
-                  refetchWithdraw()
+                  refetchCommission()
                 }} 
                 variant="ghost"
                 size="icon"
@@ -87,15 +87,15 @@ export default function Dashboard() {
           />
           
           <CommissionCard
-            title="Comissão"
+            title="Comissionamento"
             value={new Intl.NumberFormat('pt-BR', { 
               style: 'currency', 
               currency: 'BRL' 
-            }).format(metrics.comissao)}
-            availableAmount={withdrawData.availableAmount}
+            }).format(commissionData.totalCommissions)}
+            availableAmount={commissionData.availableForWithdrawal}
             icon={<Banknote className="w-6 h-6" />}
             trend={{ value: 12.5, isPositive: true }}
-            loading={loading || withdrawLoading}
+            loading={loading || commissionLoading}
           />
           
           <MetricCard

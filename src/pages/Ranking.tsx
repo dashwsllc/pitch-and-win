@@ -246,7 +246,7 @@ export default function Ranking() {
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-3">
               <Gift className="w-6 h-6 text-gold" />
-              Prêmios e Bônus de Comissão
+              Prêmios e Bônus de Comissionamento
             </CardTitle>
             <p className="text-muted-foreground">
               Sistema de recompensas para alta performance
@@ -266,7 +266,7 @@ export default function Ranking() {
                     Comissionamento adicional para vendedores de alta performance
                   </p>
                   <Badge className="bg-success text-success-foreground">
-                    Total: 22% de Comissão
+                    Total: 22% de Comissionamento
                   </Badge>
                 </CardContent>
               </Card>
