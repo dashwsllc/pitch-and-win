@@ -15,6 +15,8 @@ import ResetPassword from "./pages/ResetPassword";
 import IndividualDashboard from "./pages/IndividualDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import Ranking from "./pages/Ranking";
+import Vendas from "./pages/Vendas";
+import Abordagens from "./pages/Abordagens";
 import NovaAbordagem from "./pages/NovaAbordagem";
 import RegistrarVenda from "./pages/RegistrarVenda";
 import Clientes from "./pages/Clientes";
@@ -59,10 +61,20 @@ const App = () => (
               } />
               <Route path="/abordagens" element={
                 <ProtectedRoute>
+                  <Abordagens />
+                </ProtectedRoute>
+              } />
+              <Route path="/abordagens/nova" element={
+                <ProtectedRoute>
                   <NovaAbordagem />
                 </ProtectedRoute>
               } />
               <Route path="/vendas" element={
+                <ProtectedRoute>
+                  <Vendas />
+                </ProtectedRoute>
+              } />
+              <Route path="/vendas/nova" element={
                 <ProtectedRoute>
                   <RegistrarVenda />
                 </ProtectedRoute>
