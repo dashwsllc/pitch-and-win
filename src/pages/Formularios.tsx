@@ -1,7 +1,7 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ClipboardList, MessageSquare, ShoppingCart } from 'lucide-react'
+import { ClipboardList, MessageSquare, ShoppingCart, Target } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Formularios() {
@@ -14,11 +14,11 @@ export default function Formularios() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Formulários</h1>
-            <p className="text-muted-foreground">Acesse rapidamente os formulários de Vendas e Abordagens</p>
+            <p className="text-muted-foreground">Acesse rapidamente os formulários e acompanhe suas metas</p>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -28,7 +28,7 @@ export default function Formularios() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">Registre novas vendas e acompanhe seu histórico.</p>
-              <Button asChild className="bg-gradient-primary hover:opacity-90">
+              <Button asChild className="bg-gradient-primary hover:opacity-90 w-full">
                 <Link to="/vendas">
                   Ir para Vendas
                 </Link>
@@ -45,9 +45,26 @@ export default function Formularios() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">Cadastre abordagens e acompanhe sua performance.</p>
-              <Button asChild className="bg-gradient-primary hover:opacity-90">
+              <Button asChild className="bg-gradient-primary hover:opacity-90 w-full">
                 <Link to="/abordagens">
                   Ir para Abordagens
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary" />
+                Metas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">Acompanhe suas metas semanais e mensais.</p>
+              <Button asChild className="bg-gradient-primary hover:opacity-90 w-full">
+                <Link to="/workboard">
+                  Ir para Metas
                 </Link>
               </Button>
             </CardContent>

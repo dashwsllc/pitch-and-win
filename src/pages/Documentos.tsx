@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -6,31 +6,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { 
   FileText, 
-  Download, 
+  ExternalLink, 
   Eye, 
   Plus,
   Calendar,
   User
 } from 'lucide-react'
+import { useDocuments, Document } from '@/hooks/useDocuments'
+import { AddDocumentDialog } from '@/components/documents/AddDocumentDialog'
+import { useRoles } from '@/hooks/useRoles'
 
-// Mock data para documentos
+// Mock data para documentos com datas de setembro 2025
 const mockDocuments = {
   vendas: [
     {
       id: 1,
       title: "Contrato de Mentoria Padrão",
       description: "Modelo de contrato para mentorias individuais",
-      date: "2024-01-15",
+      date: "2025-09-15",
       author: "Administrativo",
-      type: "PDF"
+      type: "PDF",
+      link_url: "https://example.com/contrato-mentoria"
     },
     {
       id: 2,
       title: "Política de Cancelamento",
       description: "Diretrizes para cancelamentos e reembolsos",
-      date: "2024-01-10",
+      date: "2025-09-10",
       author: "Jurídico",
-      type: "PDF"
+      type: "PDF", 
+      link_url: "https://example.com/politica-cancelamento"
     }
   ],
   regimento: [
@@ -38,17 +43,19 @@ const mockDocuments = {
       id: 3,
       title: "Código de Conduta dos Vendedores",
       description: "Normas e diretrizes para a equipe de vendas",
-      date: "2024-01-20",
+      date: "2025-09-20",
       author: "RH",
-      type: "PDF"
+      type: "PDF",
+      link_url: "https://example.com/codigo-conduta"
     },
     {
       id: 4,
       title: "Política de Comissões",
       description: "Regulamentação do sistema de comissionamento",
-      date: "2024-01-18",
+      date: "2025-09-18",
       author: "Financeiro",
-      type: "PDF"
+      type: "PDF",
+      link_url: "https://example.com/politica-comissoes"
     }
   ],
   operacional: [
@@ -56,33 +63,43 @@ const mockDocuments = {
       id: 5,
       title: "Manual de Processos de Vendas",
       description: "Guia completo do processo de vendas",
-      date: "2024-01-25",
+      date: "2025-09-25",
       author: "Operacional",
-      type: "PDF"
+      type: "PDF",
+      link_url: "https://example.com/manual-processos"
     },
     {
       id: 6,
       title: "Treinamento - Abordagem de Clientes",
       description: "Material de treinamento para vendedores",
-      date: "2024-01-22",
+      date: "2025-09-22",
       author: "Treinamento",
-      type: "PDF"
+      type: "PDF",
+      link_url: "https://example.com/treinamento-abordagem"
     }
   ]
 }
 
 export default function Documentos() {
   const [selectedCategory, setSelectedCategory] = useState('vendas')
+  const { categories, documents, loading, getDocumentsByCategory, refetch } = useDocuments()
+  const { isExecutive } = useRoles()
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR')
   }
 
-  const getDocumentsByCategory = (category: string) => {
+  const getMockDocumentsByCategory = (category: string) => {
     return mockDocuments[category as keyof typeof mockDocuments] || []
   }
 
-  const DocumentCard = ({ document }: { document: any }) => (
+  const getAllDocumentsForCategory = (category: string) => {
+    const realDocs = getDocumentsByCategory(category)
+    const mockDocs = getMockDocumentsByCategory(category)
+    return [...realDocs, ...mockDocs]
+  }
+
+  const DocumentCard = ({ document, isRealDocument = false }: { document: Document | any, isRealDocument?: boolean }) => (
     <Card className="border-border/50 hover:border-border transition-colors">
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
@@ -96,30 +113,36 @@ export default function Documentos() {
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
-                  {formatDate(document.date)}
+                  {formatDate(isRealDocument ? document.created_at : document.date)}
                 </div>
                 <div className="flex items-center gap-1">
                   <User className="w-3 h-3" />
-                  {document.author}
+                  {isRealDocument ? 'Sistema' : document.author}
                 </div>
                 <Badge variant="secondary" className="text-xs">
-                  {document.type}
+                  {isRealDocument ? 'LINK' : document.type}
                 </Badge>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="h-8">
-              <Eye className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="h-8">
-              <Download className="w-4 h-4" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8"
+              onClick={() => window.open(isRealDocument ? document.link_url : document.link_url, '_blank')}
+            >
+              <ExternalLink className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </CardContent>
     </Card>
   )
+
+  const handleDocumentAdded = () => {
+    refetch()
+  }
 
   return (
     <DashboardLayout>
@@ -136,10 +159,9 @@ export default function Documentos() {
               </p>
             </div>
           </div>
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            Adicionar Documento
-          </Button>
+          {isExecutive && (
+            <AddDocumentDialog categories={categories} onDocumentAdded={handleDocumentAdded} />
+          )}
         </div>
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -158,16 +180,29 @@ export default function Documentos() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {getDocumentsByCategory('vendas').map((document) => (
-                    <DocumentCard key={document.id} document={document} />
-                  ))}
-                  {getDocumentsByCategory('vendas').length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Nenhum documento encontrado nesta categoria.
-                    </div>
-                  )}
-                </div>
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando documentos...
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {getAllDocumentsForCategory('vendas').map((document, index) => {
+                      const isRealDocument = 'category_id' in document
+                      return (
+                        <DocumentCard 
+                          key={isRealDocument ? document.id : `mock-${document.id}`} 
+                          document={document} 
+                          isRealDocument={isRealDocument}
+                        />
+                      )
+                    })}
+                    {getAllDocumentsForCategory('vendas').length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Nenhum documento encontrado nesta categoria.
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -181,16 +216,29 @@ export default function Documentos() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {getDocumentsByCategory('regimento').map((document) => (
-                    <DocumentCard key={document.id} document={document} />
-                  ))}
-                  {getDocumentsByCategory('regimento').length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Nenhum documento encontrado nesta categoria.
-                    </div>
-                  )}
-                </div>
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando documentos...
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {getAllDocumentsForCategory('regimento').map((document, index) => {
+                      const isRealDocument = 'category_id' in document
+                      return (
+                        <DocumentCard 
+                          key={isRealDocument ? document.id : `mock-${document.id}`} 
+                          document={document} 
+                          isRealDocument={isRealDocument}
+                        />
+                      )
+                    })}
+                    {getAllDocumentsForCategory('regimento').length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Nenhum documento encontrado nesta categoria.
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -204,16 +252,29 @@ export default function Documentos() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {getDocumentsByCategory('operacional').map((document) => (
-                    <DocumentCard key={document.id} document={document} />
-                  ))}
-                  {getDocumentsByCategory('operacional').length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Nenhum documento encontrado nesta categoria.
-                    </div>
-                  )}
-                </div>
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando documentos...
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {getAllDocumentsForCategory('operacional').map((document, index) => {
+                      const isRealDocument = 'category_id' in document
+                      return (
+                        <DocumentCard 
+                          key={isRealDocument ? document.id : `mock-${document.id}`} 
+                          document={document} 
+                          isRealDocument={isRealDocument}
+                        />
+                      )
+                    })}
+                    {getAllDocumentsForCategory('operacional').length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Nenhum documento encontrado nesta categoria.
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
