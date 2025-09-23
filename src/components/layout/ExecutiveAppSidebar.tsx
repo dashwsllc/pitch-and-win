@@ -1,33 +1,36 @@
 import { 
   BarChart3, 
   Home,
-  MessageSquare,
-  DollarSign,
   Trophy,
   Users,
   User,
   Settings,
-  Shield
+  Shield,
+  ClipboardList,
+  FileText,
+  Target
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Executive", url: "/executive", icon: Shield },
-  { title: "Abordagens", url: "/abordagens", icon: MessageSquare },
-  { title: "Vendas", url: "/vendas", icon: DollarSign },
+  { title: "Formulários", url: "/formularios", icon: ClipboardList },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Clientes", url: "/clientes", icon: Users },
+  { title: "Documentos", url: "/documentos", icon: FileText },
+  { title: "WorkBoard", url: "/workboard", icon: Target },
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ]
 
 const sellerMenuItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Abordagens", url: "/abordagens", icon: MessageSquare },
-  { title: "Vendas", url: "/vendas", icon: DollarSign },
+  { title: "Formulários", url: "/formularios", icon: ClipboardList },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Clientes", url: "/clientes", icon: Users },
+  { title: "Documentos", url: "/documentos", icon: FileText },
+  { title: "WorkBoard", url: "/workboard", icon: Target },
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ]

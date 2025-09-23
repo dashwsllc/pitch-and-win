@@ -16,10 +16,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const isExecutivePage = location.pathname.includes('/executive')
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <ExecutiveAppSidebar isExecutive={isExecutive} />
       
-      <div className="ml-16 min-h-screen flex flex-col">
+      <div className="ml-16 min-h-screen flex flex-col overflow-x-hidden">
         <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
           <div className="flex items-center justify-between h-full px-6">
             <div className="flex items-center gap-4">
@@ -64,7 +64,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </header>
         
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 overflow-x-hidden">
           {children}
         </main>
       </div>

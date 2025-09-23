@@ -24,6 +24,7 @@ import Documentos from "@/pages/Documentos"
 import WorkBoard from "@/pages/WorkBoard"
 import Perfil from "@/pages/Perfil"
 import Configuracoes from "@/pages/Configuracoes"
+import Formularios from "@/pages/Formularios"
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -91,11 +92,16 @@ const App = () => (
                   <Documentos />
                 </ProtectedRoute>
               } />
-               <Route path="/workboard" element={
-                 <ProtectedRoute>
-                   <WorkBoard />
-                 </ProtectedRoute>
-               } />
+              <Route path="/formularios" element={
+                <ProtectedRoute>
+                  <Formularios />
+                </ProtectedRoute>
+              } />
+              <Route path="/workboard" element={
+                <ProtectedRoute>
+                  <WorkBoard />
+                </ProtectedRoute>
+              } />
                <Route path="/perfil" element={
                 <ProtectedRoute>
                   <Perfil />

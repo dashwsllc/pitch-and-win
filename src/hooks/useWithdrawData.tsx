@@ -50,9 +50,9 @@ export function useWithdrawData() {
         })
       } else {
         setData({
-          availableAmount: saldo.valor_total_comissoes - saldo.valor_sacado,
-          totalCommissions: saldo.valor_total_comissoes,
-          withdrawnAmount: saldo.valor_sacado,
+          availableAmount: Number(saldo.valor_liberado_para_saque ?? 0),
+          totalCommissions: Number(saldo.valor_total_comissoes ?? 0),
+          withdrawnAmount: Number(saldo.valor_sacado ?? 0),
         })
       }
     } catch (error) {

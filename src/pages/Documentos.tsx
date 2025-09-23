@@ -123,7 +123,7 @@ export default function Documentos() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 overflow-x-hidden">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center">

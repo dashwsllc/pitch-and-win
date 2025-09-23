@@ -65,13 +65,13 @@ export function ExecutiveSessionControl() {
 
   const fetchActiveSessions = async () => {
     try {
-      // Buscar usuários com informações de última conexão
-      const userSessions: UserSession[] = users.map(user => ({
+      // Mapear usuários com última atividade real (last_seen_at)
+      const userSessions: UserSession[] = users.map((user: any) => ({
         user_id: user.user_id,
         email: user.display_name || user.user_id,
-        last_sign_in_at: user.created_at,
+        last_sign_in_at: user.last_seen_at || user.updated_at || user.created_at,
         display_name: user.display_name,
-        role: user.user_roles?.[0]?.role || 'seller'
+        role: user.role || (user.roles?.[0] ?? 'seller')
       }))
 
       setSessions(userSessions)
@@ -177,10 +177,17 @@ export function ExecutiveSessionControl() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-green-600 border-green-200">
-                  <Eye className="w-3 h-3 mr-1" />
-                  Online
-                </Badge>
+                {Date.now() - new Date(session.last_sign_in_at).getTime() < 120000 ? (
+                  <Badge variant="outline" className="text-green-600 border-green-200">
+                    <Eye className="w-3 h-3 mr-1" />
+                    Online
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-muted-foreground border-border">
+                    <EyeOff className="w-3 h-3 mr-1" />
+                    Offline
+                  </Badge>
+                )}
                 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

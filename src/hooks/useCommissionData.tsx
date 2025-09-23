@@ -33,38 +33,41 @@ export function useCommissionData() {
       const totalVendas = vendas?.reduce((sum, venda) => sum + parseFloat(venda.valor_venda.toString()), 0) || 0
       const totalCommissions = totalVendas * 0.12
 
-      // Buscar valor já sacado
-      const { data: saques, error: saquesError } = await supabase
-        .from('saques')
-        .select('valor_solicitado')
+      // Buscar saldo atual para respeitar bloqueios por saques pendentes
+      const { data: saldo, error: saldoError } = await supabase
+        .from('saldos_disponiveis')
+        .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'aprovado')
+        .maybeSingle()
 
-      if (saquesError) throw saquesError
+      if (saldoError) throw saldoError
 
-      const withdrawnAmount = saques?.reduce((sum, saque) => sum + parseFloat(saque.valor_solicitado.toString()), 0) || 0
-      const availableForWithdrawal = totalCommissions - withdrawnAmount
+      const currentWithdrawn = parseFloat((saldo?.valor_sacado ?? 0).toString())
+      const currentAvailable = saldo ? parseFloat(saldo.valor_liberado_para_saque.toString()) : totalCommissions
 
       setData({
         totalCommissions,
-        availableForWithdrawal: Math.max(0, availableForWithdrawal),
-        withdrawnAmount,
+        availableForWithdrawal: Math.max(0, currentAvailable),
+        withdrawnAmount: currentWithdrawn,
       })
 
-      // Atualizar ou criar registro de saldo
-      const { error: upsertError } = await supabase
-        .from('saldos_disponiveis')
-        .upsert({
-          user_id: user.id,
-          valor_total_comissoes: totalCommissions,
-          valor_liberado_para_saque: totalCommissions,
-          valor_sacado: withdrawnAmount,
-        }, {
-          onConflict: 'user_id'
-        })
-
-      if (upsertError) {
-        console.error('Error upserting balance:', upsertError)
+      // Atualizar ou criar registro de saldo sem sobrescrever o disponível
+      if (saldo) {
+        const { error: updateError } = await supabase
+          .from('saldos_disponiveis')
+          .update({ valor_total_comissoes: totalCommissions })
+          .eq('user_id', user.id)
+        if (updateError) console.error('Error updating balance:', updateError)
+      } else {
+        const { error: insertError } = await supabase
+          .from('saldos_disponiveis')
+          .insert({
+            user_id: user.id,
+            valor_total_comissoes: totalCommissions,
+            valor_liberado_para_saque: totalCommissions,
+            valor_sacado: 0,
+          })
+        if (insertError) console.error('Error inserting balance:', insertError)
       }
 
     } catch (error) {

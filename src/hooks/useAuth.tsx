@@ -20,38 +20,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true
+    let heartbeat: number | undefined
 
-    const initializeAuth = async () => {
+    const updateLastSeen = async (uid: string) => {
       try {
-        // Get initial session first
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Error getting initial session:', error)
-        }
-
-        if (mounted) {
-          setSession(session)
-          setUser(session?.user ?? null)
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error)
-        if (mounted) {
-          setLoading(false)
-        }
+        await supabase
+          .from('profiles')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('user_id', uid)
+      } catch (e) {
+        console.error('Erro ao atualizar last_seen_at', e)
       }
     }
 
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
-        
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (error) {
+          console.error('Error getting initial session:', error)
+        }
         if (mounted) {
           setSession(session)
           setUser(session?.user ?? null)
           setLoading(false)
+          if (session?.user?.id) {
+            updateLastSeen(session.user.id)
+            heartbeat = window.setInterval(() => updateLastSeen(session.user!.id), 60_000)
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error)
+        if (mounted) setLoading(false)
+      }
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
+        if (mounted) {
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        }
+        // controlar heartbeat
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          const uid = session?.user?.id
+          if (uid) {
+            await updateLastSeen(uid)
+            if (heartbeat) window.clearInterval(heartbeat)
+            heartbeat = window.setInterval(() => updateLastSeen(uid), 60_000)
+          }
+        }
+        if (event === 'SIGNED_OUT') {
+          if (heartbeat) window.clearInterval(heartbeat)
         }
       }
     )
@@ -60,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false
+      if (heartbeat) window.clearInterval(heartbeat)
       subscription.unsubscribe()
     }
   }, [])
