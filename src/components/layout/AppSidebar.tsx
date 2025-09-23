@@ -1,20 +1,20 @@
 import { 
   BarChart3, 
   Home,
-  MessageSquare,
-  DollarSign,
+  ClipboardList,
   Trophy,
   Users,
   User,
   Settings,
-  FileText
+  FileText,
+  Target
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Abordagens", url: "/abordagens", icon: MessageSquare },
-  { title: "Vendas", url: "/vendas", icon: DollarSign },
+  { title: "Formulários", url: "/abordagens", icon: ClipboardList },
+  { title: "WorkBoard", url: "/workboard", icon: Target },
   { title: "Ranking", url: "/ranking", icon: Trophy },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Documentos", url: "/documentos", icon: FileText },

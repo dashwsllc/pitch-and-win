@@ -19,10 +19,11 @@ import Vendas from "./pages/Vendas";
 import Abordagens from "./pages/Abordagens";
 import NovaAbordagem from "./pages/NovaAbordagem";
 import RegistrarVenda from "./pages/RegistrarVenda";
-import Clientes from "./pages/Clientes";
-import Documentos from "./pages/Documentos";
-import Perfil from "./pages/Perfil";
-import Configuracoes from "./pages/Configuracoes";
+import Clientes from "@/pages/Clientes"
+import Documentos from "@/pages/Documentos"
+import WorkBoard from "@/pages/WorkBoard"
+import Perfil from "@/pages/Perfil"
+import Configuracoes from "@/pages/Configuracoes"
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -90,7 +91,12 @@ const App = () => (
                   <Documentos />
                 </ProtectedRoute>
               } />
-              <Route path="/perfil" element={
+               <Route path="/workboard" element={
+                 <ProtectedRoute>
+                   <WorkBoard />
+                 </ProtectedRoute>
+               } />
+               <Route path="/perfil" element={
                 <ProtectedRoute>
                   <Perfil />
                 </ProtectedRoute>
