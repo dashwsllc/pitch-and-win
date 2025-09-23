@@ -155,48 +155,21 @@ export function ExecutiveWithdrawalManagement() {
       if (saqueError) throw saqueError
 
       if (approve) {
-        // Se aprovado, debitar o valor do saldo disponível
-        const { data: currentBalance } = await supabase
-          .from('saldos_disponiveis')
-          .select('valor_sacado')
-          .eq('user_id', withdrawal.user_id)
-          .single()
+        // Se aprovado, usar a função process_withdrawal para debitar corretamente
+        const { error: processError } = await supabase.rpc('process_withdrawal', {
+          p_user_id: withdrawal.user_id,
+          p_withdrawal_amount: withdrawal.valor_solicitado
+        })
 
-        if (currentBalance) {
-          const { error: saldoError } = await supabase
-            .from('saldos_disponiveis')
-            .update({
-              valor_sacado: currentBalance.valor_sacado + withdrawal.valor_solicitado
-            })
-            .eq('user_id', withdrawal.user_id)
-
-          if (saldoError) throw saldoError
-        }
-      } else {
-        // Se rejeitado, retornar o valor para o saldo disponível
-        const { data: saldo } = await supabase
-          .from('saldos_disponiveis')
-          .select('valor_liberado_para_saque')
-          .eq('user_id', withdrawal.user_id)
-          .single()
-
-        if (saldo) {
-          const { error: updateError } = await supabase
-            .from('saldos_disponiveis')
-            .update({
-              valor_liberado_para_saque: saldo.valor_liberado_para_saque + withdrawal.valor_solicitado
-            })
-            .eq('user_id', withdrawal.user_id)
-
-          if (updateError) throw updateError
-        }
+        if (processError) throw processError
       }
+      // Se rejeitado, não precisa fazer nada com o saldo pois o valor já está disponível na comissão total
 
       toast({
         title: approve ? 'Saque aprovado!' : 'Saque rejeitado!',
         description: approve 
           ? `Saque de ${formatCurrency(withdrawal.valor_solicitado)} foi aprovado.`
-          : `Saque de ${formatCurrency(withdrawal.valor_solicitado)} foi rejeitado e o valor retornado à conta.`
+          : `Saque de ${formatCurrency(withdrawal.valor_solicitado)} foi rejeitado.`
       })
 
       setObservations('')
